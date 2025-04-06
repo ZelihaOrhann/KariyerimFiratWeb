@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kayıt Ol</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="container">
+
+    <header>
+      <img src="../images/anaLogo.jpg" alt="Logo" class="logo">
+      <nav>
+        <a href="#">Giriş Yap</a>
+        <a href="#" class="active">Kayıt Ol</a>
+      </nav>
+    </header>
+
+    <main>
+      <h1>Ücretsiz<br>Hesap Oluştur</h1>
+
+      <form>
+        <input type="text" placeholder="Ad" required>
+        <input type="text" placeholder="Soyad" required>
+        <input type="email" placeholder="E-Posta Adresi" required>
+
+        <div class="password-field">
+          <input type="password" id="password" placeholder="Şifre" required>
+          <span class="toggle-password" id="togglePassword">👁️</span>
+        </div>
+
+        <input type="text" placeholder="Kullanıcı Adı" required>
+
+        <label class="checkbox">
+          <input type="checkbox" required>
+          Hizmet sözleşmesini onaylıyorum
+        </label>
+        <label class="checkbox">
+          <input type="checkbox">
+          E-İleti gönderilmesine izin veriyorum
+        </label>
+
+        <button type="submit">Kayıt Ol</button>
+      </form>
+
+      <div class="icons">
+        <span>💼</span>
+        <span>📧</span>
+      </div>
+    </main>
+
+  </div>
+
+  <script>
+    const togglePassword = document.getElementById("togglePassword");
+    const passwordInput = document.getElementById("password");
+
+    togglePassword.addEventListener("click", () => {
+      const type = passwordInput.getAttribute("type") === "password" ? "text" : "password";
+      passwordInput.setAttribute("type", type);
+      togglePassword.textContent = type === "password" ? "👁️" : "🙈";
+    });
+  </script>
+
+</body>
+</html>
