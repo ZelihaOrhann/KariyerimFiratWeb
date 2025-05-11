@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KariyerimFırat - Anasayfa</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  
+  <!-- Firebase Config -->
+  <script src="firebase-config.js"></script>
+</head>
+<body class="bg-gradient-to-br from-gray-900 to-gray-800 text-white min-h-screen flex flex-col pb-24">
+  <!-- Hero Section -->
+  <header class="bg-gradient-to-r from-yellow-400/10 to-gray-900 py-16 shadow-lg">
+    <div class="container mx-auto px-4 flex flex-col items-center text-center">
+      <h1 class="text-4xl md:text-5xl font-extrabold mb-4 text-yellow-400 drop-shadow">KariyerimFırat</h1>
+      <p class="text-xl md:text-2xl text-gray-200 mb-6 max-w-2xl">Hayalindeki işe ulaş, mentorluk al, CV'ni geliştir ve geleceğini inşa et. <span class="text-yellow-400 font-bold">Kariyer yolculuğunda seninleyiz!</span></p>
+      <a href="ilanlar.html" class="bg-yellow-400 text-gray-900 px-8 py-3 rounded-lg font-bold text-lg shadow hover:bg-yellow-300 transition">Hemen İlanlara Göz At</a>
+    </div>
+  </header>
+
+  <!-- Öne Çıkan Özellikler -->
+  <section class="container mx-auto px-4 py-12">
+    <h2 class="text-2xl font-bold mb-8 text-center">Platformda Seni Neler Bekliyor?</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div class="bg-gray-800 rounded-xl p-6 flex flex-col items-center shadow-lg">
+        <span class="text-4xl mb-3">💼</span>
+        <h3 class="font-bold text-lg mb-2">İş & Staj İlanları</h3>
+        <p class="text-gray-400 text-center">Yüzlerce güncel iş ve staj ilanına kolayca başvur, kariyerine yön ver.</p>
+      </div>
+      <div class="bg-gray-800 rounded-xl p-6 flex flex-col items-center shadow-lg">
+        <span class="text-4xl mb-3">🤝</span>
+        <h3 class="font-bold text-lg mb-2">Mentorluk</h3>
+        <p class="text-gray-400 text-center">Alanında uzman mentorlardan destek al, deneyimlerini paylaş.</p>
+      </div>
+      <div class="bg-gray-800 rounded-xl p-6 flex flex-col items-center shadow-lg">
+        <span class="text-4xl mb-3">🎓</span>
+        <h3 class="font-bold text-lg mb-2">Burs & Etkinlikler</h3>
+        <p class="text-gray-400 text-center">Burs fırsatlarını ve kariyer etkinliklerini kaçırma, networkünü genişlet.</p>
+      </div>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-8">
+      <div class="bg-gray-800 rounded-xl p-6 flex flex-col items-center shadow-lg">
+        <span class="text-4xl mb-3">📝</span>
+        <h3 class="font-bold text-lg mb-2">Akıllı CV Hazırlama</h3>
+        <p class="text-gray-400 text-center">Yapay zeka destekli CV oluşturucu ile öne çıkan bir özgeçmiş hazırla.</p>
+      </div>
+      <div class="bg-gray-800 rounded-xl p-6 flex flex-col items-center shadow-lg">
+        <span class="text-4xl mb-3">🔍</span>
+        <h3 class="font-bold text-lg mb-2">Akıllı Eşleştirme</h3>
+        <p class="text-gray-400 text-center">Profiline ve yeteneklerine uygun ilanları otomatik olarak keşfet.</p>
+      </div>
+      <div class="bg-gray-800 rounded-xl p-6 flex flex-col items-center shadow-lg">
+        <span class="text-4xl mb-3">🌟</span>
+        <h3 class="font-bold text-lg mb-2">Başarı Hikayeleri</h3>
+        <p class="text-gray-400 text-center">Platformumuzdan iş bulan ve gelişen kullanıcıların ilham veren hikayeleri.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Kariyer Yolculuğu Adımları -->
+  <section class="bg-gray-800 py-12">
+    <div class="container mx-auto px-4">
+      <h2 class="text-2xl font-bold mb-8 text-center">Kariyer Yolculuğun 4 Adımda</h2>
+      <div class="flex flex-col md:flex-row justify-center items-center gap-8">
+        <div class="flex flex-col items-center">
+          <div class="bg-yellow-400 text-gray-900 rounded-full w-14 h-14 flex items-center justify-center text-2xl font-bold mb-2">1</div>
+          <div class="font-semibold">Kayıt Ol</div>
+          <div class="text-gray-400 text-sm text-center">Hemen ücretsiz üye ol, profilini oluştur.</div>
+        </div>
+        <div class="h-12 w-1 bg-yellow-400 md:h-1 md:w-12 md:bg-yellow-400 md:my-0 my-4"></div>
+        <div class="flex flex-col items-center">
+          <div class="bg-yellow-400 text-gray-900 rounded-full w-14 h-14 flex items-center justify-center text-2xl font-bold mb-2">2</div>
+          <div class="font-semibold">CV'ni Hazırla</div>
+          <div class="text-gray-400 text-sm text-center">Yapay zeka destekli araçlarla CV'ni oluştur.</div>
+        </div>
+        <div class="h-12 w-1 bg-yellow-400 md:h-1 md:w-12 md:bg-yellow-400 md:my-0 my-4"></div>
+        <div class="flex flex-col items-center">
+          <div class="bg-yellow-400 text-gray-900 rounded-full w-14 h-14 flex items-center justify-center text-2xl font-bold mb-2">3</div>
+          <div class="font-semibold">İlanlara Başvur</div>
+          <div class="text-gray-400 text-sm text-center">Sana uygun iş ve staj ilanlarına başvur.</div>
+        </div>
+        <div class="h-12 w-1 bg-yellow-400 md:h-1 md:w-12 md:bg-yellow-400 md:my-0 my-4"></div>
+        <div class="flex flex-col items-center">
+          <div class="bg-yellow-400 text-gray-900 rounded-full w-14 h-14 flex items-center justify-center text-2xl font-bold mb-2">4</div>
+          <div class="font-semibold">Mentorluk & Gelişim</div>
+          <div class="text-gray-400 text-sm text-center">Mentorluk al, etkinliklere katıl, gelişimini sürdür.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Başarı Hikayeleri -->
+  <section class="container mx-auto px-4 py-12">
+    <h2 class="text-2xl font-bold mb-8 text-center">Başarı Hikayeleri</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div class="bg-gray-800 rounded-xl p-6 shadow-lg flex flex-col items-center">
+        <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Kullanıcı" class="w-16 h-16 rounded-full mb-3" />
+        <div class="font-bold mb-1">Ahmet Yılmaz</div>
+        <div class="text-gray-400 text-center text-sm">"KariyerimFırat sayesinde hayalimdeki işe kavuştum. Mentorluk desteği ve CV araçları çok faydalı!"</div>
+      </div>
+      <div class="bg-gray-800 rounded-xl p-6 shadow-lg flex flex-col items-center">
+        <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Kullanıcı" class="w-16 h-16 rounded-full mb-3" />
+        <div class="font-bold mb-1">Zeynep Demir</div>
+        <div class="text-gray-400 text-center text-sm">"Platformdaki etkinlikler ve burslar sayesinde networkümü genişlettim, yeni fırsatlar yakaladım."</div>
+      </div>
+      <div class="bg-gray-800 rounded-xl p-6 shadow-lg flex flex-col items-center">
+        <img src="https://randomuser.me/api/portraits/men/65.jpg" alt="Kullanıcı" class="w-16 h-16 rounded-full mb-3" />
+        <div class="font-bold mb-1">Mehmet Kaya</div>
+        <div class="text-gray-400 text-center text-sm">"Akıllı eşleştirme özelliğiyle bana uygun ilanları kolayca buldum ve başvurdum."</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Sıkça Sorulan Sorular -->
+  <section class="bg-gray-800 py-12">
+    <div class="container mx-auto px-4">
+      <h2 class="text-2xl font-bold mb-8 text-center">Sıkça Sorulan Sorular</h2>
+      <div class="max-w-2xl mx-auto">
+        <details class="mb-4 bg-gray-900 rounded-lg p-4">
+          <summary class="font-semibold cursor-pointer">KariyerimFırat'a nasıl kayıt olabilirim?</summary>
+          <div class="text-gray-400 mt-2">Kayıt ol butonuna tıklayarak hızlıca ücretsiz üye olabilirsiniz.</div>
+        </details>
+        <details class="mb-4 bg-gray-900 rounded-lg p-4">
+          <summary class="font-semibold cursor-pointer">Mentorluk desteği nasıl alabilirim?</summary>
+          <div class="text-gray-400 mt-2">Profilinizi tamamladıktan sonra mentorluk başvurusu yapabilirsiniz.</div>
+        </details>
+        <details class="mb-4 bg-gray-900 rounded-lg p-4">
+          <summary class="font-semibold cursor-pointer">CV hazırlama aracı ücretli mi?</summary>
+          <div class="text-gray-400 mt-2">Hayır, platformumuzdaki CV hazırlama aracı tamamen ücretsizdir.</div>
+        </details>
+        <details class="mb-4 bg-gray-900 rounded-lg p-4">
+          <summary class="font-semibold cursor-pointer">İlanlara başvurmak için ne yapmalıyım?</summary>
+          <div class="text-gray-400 mt-2">Profilinizi oluşturduktan sonra ilanlara kolayca başvurabilirsiniz.</div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-gray-900 py-6 mt-8">
+    <div class="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center text-gray-400">
+      <div class="mb-2 md:mb-0">&copy; 2024 KariyerimFırat. Tüm hakları saklıdır.</div>
+      <div class="flex gap-4">
+        <a href="#" class="hover:text-yellow-400">İletişim</a>
+        <a href="#" class="hover:text-yellow-400">Gizlilik</a>
+        <a href="#" class="hover:text-yellow-400">Instagram</a>
+        <a href="#" class="hover:text-yellow-400">LinkedIn</a>
+      </div>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { firebaseConfig } from './firebase-config.js';
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // Dropdown menü aç/kapat
+    const avatarBtn = document.getElementById('avatarBtn');
+    const dropdownMenu = document.getElementById('dropdownMenu');
+    avatarBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      dropdownMenu.classList.toggle('hidden');
+    });
+    // Sayfanın başka yerine tıklanınca menüyü kapat
+    document.addEventListener('click', (e) => {
+      if (!avatarBtn.contains(e.target)) {
+        dropdownMenu.classList.add('hidden');
+      }
+    });
+
+    // Çıkış işlemi
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      signOut(auth).then(() => {
+        window.location.href = "anasayfa.html";
+      }).catch((error) => {
+        console.error("Çıkış yapılırken hata oluştu:", error);
+      });
+    });
+
+    // Profili Düzenle ve Ayarlar butonları (şimdilik uyarı)
+    document.getElementById('editProfileBtn').addEventListener('click', () => {
+      window.location.href = "profil.html";
+    });
+    document.getElementById('settingsBtn').addEventListener('click', () => {
+      window.location.href = "ayarlar.html";
+    });
+
+    // Kullanıcı adı ve avatarı doldur
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        try {
+          const userDoc = await getDoc(doc(db, "users", user.uid));
+          let adSoyad = user.displayName || user.email;
+          if (userDoc.exists()) {
+            const userData = userDoc.data();
+            const ad = userData.ad || '';
+            const soyad = userData.soyad || '';
+            adSoyad = (ad + ' ' + soyad).trim() || adSoyad;
+            document.getElementById('userAvatar').src = `https://ui-avatars.com/api/?name=${encodeURIComponent(adSoyad)}&background=FACC15&color=111827&size=64`;
+          }
+          document.querySelector('.text-yellow-300').textContent = adSoyad;
+        } catch (error) {
+          console.error("Kullanıcı bilgileri alınamadı:", error);
+          document.querySelector('.text-yellow-300').textContent = user.displayName || user.email;
+        }
+      } else {
+        window.location.href = "anasayfa.html";
+      }
+    });
+  </script>
+
+  <!-- Navigation Script -->
+  <script src="js/navigation.js"></script>
+  <script src="js/avatarMenu.js"></script>
+</body>
+</html>

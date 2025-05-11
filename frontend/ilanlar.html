@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>İlanlar</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  
+  <!-- Firebase Config -->
+  <script src="firebase-config.js"></script>
+</head>
+<body class="bg-gradient-to-br from-gray-900 to-gray-800 min-h-screen text-white flex flex-col">
+  <header class="bg-gray-800 shadow-lg">
+    <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+      <h1 class="text-2xl font-bold">İş ve Staj İlanları</h1>
+      <!-- Avatar menü burada olacak, ayrı ekleniyor -->
+    </div>
+  </header>
+
+  <main class="container mx-auto px-4 py-8 flex-1">
+    <div class="pb-4">
+      <div class="flex justify-center gap-6" id="ilanlarContainer"></div>
+      <!-- Carousel Dots -->
+      <div class="flex justify-center mt-6 gap-2" id="carouselDots"></div>
+    </div>
+  </main>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { firebaseConfig } from './firebase-config.js';
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // Dropdown menü aç/kapat
+    const avatarBtn = document.getElementById('avatarBtn');
+    const dropdownMenu = document.getElementById('dropdownMenu');
+    avatarBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      dropdownMenu.classList.toggle('hidden');
+    });
+    // Sayfanın başka yerine tıklanınca menüyü kapat
+    document.addEventListener('click', (e) => {
+      if (!avatarBtn.contains(e.target)) {
+        dropdownMenu.classList.add('hidden');
+      }
+    });
+
+    // Çıkış işlemi
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      signOut(auth).then(() => {
+        window.location.href = "anasayfa.html";
+      }).catch((error) => {
+        console.error("Çıkış yapılırken hata oluştu:", error);
+      });
+    });
+
+    // Profili Düzenle ve Ayarlar butonları
+    document.getElementById('editProfileBtn').addEventListener('click', () => {
+      window.location.href = "profil.html";
+    });
+    document.getElementById('settingsBtn').addEventListener('click', () => {
+      window.location.href = "ayarlar.html";
+    });
+
+    // Kullanıcı adı ve avatarı doldur
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        try {
+          const userDoc = await getDoc(doc(db, "users", user.uid));
+          let adSoyad = user.displayName || user.email;
+          if (userDoc.exists()) {
+            const userData = userDoc.data();
+            const ad = userData.ad || '';
+            const soyad = userData.soyad || '';
+            adSoyad = (ad + ' ' + soyad).trim() || adSoyad;
+            document.getElementById('userAvatar').src = `https://ui-avatars.com/api/?name=${encodeURIComponent(adSoyad)}&background=FACC15&color=111827&size=64`;
+          }
+        } catch (error) {
+          console.error("Kullanıcı bilgileri alınamadı:", error);
+        }
+      } else {
+        window.location.href = "anasayfa.html";
+      }
+    });
+  </script>
+
+  <!-- Navigation Script -->
+  <script src="js/navigation.js"></script>
+  <script src="js/avatarMenu.js"></script>
+
+  <script>
+    // Rastgele örnek ilanlar
+    const ilanlar = [
+      {
+        img: "https://kariyer.enter.enerjisa.com.tr/assets/images/enerjisa-enter.jpg",
+        logo: "https://upload.wikimedia.org/wikipedia/commons/6/6a/Enerjisa_logo.png",
+        sirket: "Enerjisa Enerji",
+        baslik: "ENTER Genç Yetenek Programı 2025",
+        aciklama: "ENTER, Enerjisa Dağıtım bölgemizde yer alan üniversitelerin ilgili bölümlerinde...",
+        maas: true
+      },
+      {
+        img: "https://www.eurekosigorta.com.tr/media/4v1j2v5n/future-generation.jpg",
+        logo: "https://www.eurekosigorta.com.tr/favicon.ico",
+        sirket: "Eureko Sigorta",
+        baslik: "Future Generation Long -Term Career",
+        aciklama: "Ready to start a journey full of growth and inspiration? If your answer is 'yes',...",
+        maas: true
+      },
+      {
+        img: "https://workintech.com.tr/assets/images/hero-img.png",
+        logo: "https://workintech.com.tr/assets/images/logo.png",
+        sirket: "Workintech",
+        baslik: "Workintech Yazılımcı Yetiştirme Programı",
+        aciklama: "Workintech ile 6 Ayda Yazılımcı Olup İşe Girme Fırsatı. Workintech, İş Bankası - Y...",
+        maas: true
+      },
+      {
+        img: "https://cdn.pixabay.com/photo/2016/11/29/09/32/architecture-1868667_1280.jpg",
+        logo: "https://cdn-icons-png.flaticon.com/512/190/190411.png",
+        sirket: "Mimarlık Ofisi",
+        baslik: "Mimari Proje Stajyeri",
+        aciklama: "Yaratıcı ve öğrenmeye açık stajyer mimar arıyoruz.",
+        maas: false
+      },
+      {
+        img: "https://cdn.pixabay.com/photo/2015/09/18/19/03/africa-942362_1280.jpg",
+        logo: "https://cdn-icons-png.flaticon.com/512/190/190406.png",
+        sirket: "Doğa Koruma",
+        baslik: "Saha Asistanı (Yaz Dönemi)",
+        aciklama: "Doğa projelerinde saha asistanı olarak görev alacak gönüllüler arıyoruz.",
+        maas: false
+      },
+      {
+        img: "https://cdn.pixabay.com/photo/2017/01/20/00/30/mountains-1993642_1280.jpg",
+        logo: "https://cdn-icons-png.flaticon.com/512/190/190420.png",
+        sirket: "OutdoorTech",
+        baslik: "Kamp Ekipmanları Satış Danışmanı",
+        aciklama: "Outdoor ürünlerinde satış ve müşteri ilişkileri için takım arkadaşı arıyoruz.",
+        maas: true
+      },
+      {
+        img: "https://cdn.pixabay.com/photo/2016/03/27/22/16/architecture-1287207_1280.jpg",
+        logo: "https://cdn-icons-png.flaticon.com/512/190/190423.png",
+        sirket: "Yapı Merkezi",
+        baslik: "İnşaat Mühendisi (Yeni Mezun)",
+        aciklama: "Büyük ölçekli projelerde çalışacak yeni mezun mühendisler arıyoruz.",
+        maas: true
+      },
+      {
+        img: "https://cdn.pixabay.com/photo/2016/11/29/03/53/adult-1867889_1280.jpg",
+        logo: "https://cdn-icons-png.flaticon.com/512/190/190422.png",
+        sirket: "SağlıkNet",
+        baslik: "Sağlık Danışmanı",
+        aciklama: "Sağlık sektöründe danışmanlık yapmak isteyen adaylar başvurabilir.",
+        maas: false
+      },
+      {
+        img: "https://cdn.pixabay.com/photo/2016/11/29/09/08/animal-1868911_1280.jpg",
+        logo: "https://cdn-icons-png.flaticon.com/512/190/190421.png",
+        sirket: "PetCare",
+        baslik: "Veteriner Teknikeri",
+        aciklama: "Hayvan sağlığı ve bakımı konusunda deneyimli tekniker arıyoruz.",
+        maas: true
+      }
+    ];
+    const ilanlarContainer = document.getElementById('ilanlarContainer');
+    const dotsContainer = document.getElementById('carouselDots');
+    const ilanlarScroll = document.getElementById('ilanlarScroll');
+    const ilanPerPage = 3;
+    const pageCount = Math.ceil(ilanlar.length / ilanPerPage);
+    let activePage = 0;
+
+    function renderIlanlar(page) {
+      ilanlarContainer.innerHTML = '';
+      const start = page * ilanPerPage;
+      const end = Math.min(start + ilanPerPage, ilanlar.length);
+      for (let i = start; i < end; i++) {
+        const ilan = ilanlar[i];
+        const card = document.createElement('div');
+        card.className = "bg-gray-800 rounded-xl shadow-lg p-6 min-w-[320px] max-w-xs flex flex-col justify-between";
+        card.innerHTML = `
+          <img src="${ilan.img}" alt="${ilan.sirket}" class="rounded-lg mb-4 w-full h-40 object-cover" />
+          <div class="flex items-center gap-2 mb-2">
+            <img src="${ilan.logo}" alt="${ilan.sirket}" class="w-8 h-8 rounded-full" />
+            <span class="text-gray-300 font-semibold">${ilan.sirket}</span>
+          </div>
+          <h2 class="text-lg font-bold mb-1">${ilan.baslik}</h2>
+          <div class="text-gray-400 mb-2 text-sm">${ilan.aciklama}</div>
+          <div class="flex items-center gap-2 text-xs text-gray-400 mb-2"><span>💼</span> ${ilan.maas ? 'Maaşlı' : 'Gönüllü'}</div>
+          <button class="bg-yellow-400 text-gray-900 px-4 py-2 rounded hover:bg-yellow-300 font-semibold">Başvur</button>
+        `;
+        ilanlarContainer.appendChild(card);
+      }
+    }
+
+    function updateDots(page) {
+      dotsContainer.innerHTML = '';
+      for (let i = 0; i < pageCount; i++) {
+        const dot = document.createElement('button');
+        dot.className = 'w-3 h-3 rounded-full ' + (i === page ? 'bg-blue-500' : 'bg-blue-200') + ' focus:outline-none';
+        dot.addEventListener('click', () => {
+          activePage = i;
+          renderIlanlar(activePage);
+          updateDots(activePage);
+        });
+        dotsContainer.appendChild(dot);
+      }
+    }
+
+    // İlk başta render et
+    renderIlanlar(activePage);
+    updateDots(activePage);
+  </script>
+</body>
+</html>

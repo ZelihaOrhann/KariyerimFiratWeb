@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Firebase Bağlantı Testi</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-800 text-white p-8">
+  <h1 class="text-2xl font-bold mb-4">Firebase Bağlantı Testi</h1>
+  
+  <div id="status" class="mb-4 p-4 bg-gray-700 rounded">
+    Bağlantı kontrol ediliyor...
+  </div>
+  
+  <div id="details" class="p-4 bg-gray-700 rounded hidden">
+    <h2 class="text-xl font-semibold mb-2">Bağlantı Detayları</h2>
+    <pre id="config-details" class="whitespace-pre-wrap bg-gray-900 p-4 rounded text-sm"></pre>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  
+  <!-- Firebase Config -->
+  <script src="firebase-config.js"></script>
+  
+  <script>
+    // Firebase'i başlat
+    firebase.initializeApp(firebaseConfig);
+
+    const statusElement = document.getElementById('status');
+    const detailsElement = document.getElementById('details');
+    const configDetailsElement = document.getElementById('config-details');
+
+    try {
+      // Config bilgilerini göster (apiKey gizlenerek)
+      const safeConfig = {...firebaseConfig};
+      safeConfig.apiKey = safeConfig.apiKey.substring(0, 8) + "...";
+      configDetailsElement.textContent = JSON.stringify(safeConfig, null, 2);
+      detailsElement.classList.remove('hidden');
+      
+      // Firestore bağlantısını test et
+      const testFirestore = async () => {
+        try {
+          const db = firebase.firestore();
+          const querySnapshot = await db.collection("users").get();
+          statusElement.innerHTML = `
+            <div class="text-green-400">✅ Firebase bağlantısı başarılı!</div>
+            <div class="mt-2">Firestore 'users' koleksiyonunda ${querySnapshot.size} döküman bulundu.</div>
+          `;
+        } catch (error) {
+          statusElement.innerHTML = `
+            <div class="text-yellow-400">⚠️ Firebase bağlantısı kuruldu ancak Firestore erişiminde hata:</div>
+            <div class="mt-2 text-red-400">${error.message}</div>
+            <div class="mt-2">Bu, izin sorunlarından veya koleksiyonun henüz oluşturulmamış olmasından kaynaklanabilir.</div>
+          `;
+        }
+      };
+      
+      // Auth durumunu kontrol et
+      firebase.auth().onAuthStateChanged((user) => {
+        if (user) {
+          statusElement.innerHTML += `
+            <div class="mt-2">Giriş yapılmış kullanıcı: ${user.email}</div>
+          `;
+        } else {
+          statusElement.innerHTML += `
+            <div class="mt-2">Giriş yapılmış kullanıcı yok.</div>
+          `;
+        }
+      });
+      
+      // Firestore testini çalıştır
+      testFirestore();
+      
+    } catch (error) {
+      statusElement.innerHTML = `
+        <div class="text-red-500">❌ Firebase bağlantısı başarısız!</div>
+        <div class="mt-2">Hata: ${error.message}</div>
+      `;
+    }
+  </script>
+</body>
+</html>

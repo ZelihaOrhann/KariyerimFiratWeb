@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Başvurularım</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+</head>
+<body class="bg-gradient-to-br from-gray-900 to-gray-800 min-h-screen text-white">
+  <header class="bg-gray-800 shadow-lg">
+    <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+      <h1 class="text-2xl font-bold">Başvurularım</h1>
+      <a href="anagiris.html" class="text-yellow-400 hover:underline">Anasayfa</a>
+    </div>
+  </header>
+
+  <main class="container mx-auto px-4 py-8">
+    <div id="applicationsList" class="space-y-4">
+      <div class="text-gray-400">Başvurularınız yükleniyor...</div>
+    </div>
+  </main>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { firebaseConfig } from './firebase-config.js';
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const applicationsList = document.getElementById('applicationsList');
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = "giris.html";
+        return;
+      }
+      // Başvuruları çek
+      const q = query(collection(db, "applications"), where("userId", "==", user.uid));
+      const querySnapshot = await getDocs(q);
+      applicationsList.innerHTML = '';
+      if (querySnapshot.empty) {
+        applicationsList.innerHTML = '<div class="text-gray-400">Henüz bir başvurunuz yok.</div>';
+        return;
+      }
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        const card = document.createElement('div');
+        card.className = "bg-gray-800 rounded-lg p-6 shadow-lg";
+        card.innerHTML = `
+          <h2 class="text-lg font-semibold mb-2">${data.ilanBaslik || 'İlan Başlığı Yok'}</h2>
+          <div class="text-gray-400 mb-2">${data.ilanDetay || ''}</div>
+          <div class="text-sm text-gray-500">Başvuru Tarihi: ${data.basvuruTarihi ? new Date(data.basvuruTarihi).toLocaleString('tr-TR') : ''}</div>
+        `;
+        applicationsList.appendChild(card);
+      });
+    });
+  </script>
+</body>
+</html> 

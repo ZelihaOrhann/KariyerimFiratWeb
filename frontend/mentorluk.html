@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mentörlük</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    
+    <!-- Firebase Config -->
+    <script src="firebase-config.js"></script>
+</head>
+<body class="bg-gradient-to-br from-gray-900 to-gray-800 text-white min-h-screen flex flex-col pb-24">
+    <!-- Header -->
+    <header class="bg-gray-800 shadow-lg">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <h1 class="text-2xl font-bold">Mentörlük</h1>
+            <!-- Avatar menü burada olacak, ayrı ekleniyor -->
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="container mx-auto px-4 py-8 text-center">
+        <h2 class="text-3xl font-extrabold mb-2 text-yellow-400">Kariyerine Yön Verecek Mentörlerle Tanış!</h2>
+        <p class="text-gray-300 max-w-2xl mx-auto">Alanında uzman mentörlerle iletişime geç, deneyimlerinden faydalan, randevu al ve kariyer yolculuğunda bir adım öne çık!</p>
+    </section>
+
+    <!-- Mentör Kartları -->
+    <main class="container mx-auto px-4 pb-8 flex-1">
+        <div id="mentorGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Mentör kartları JS ile eklenecek -->
+        </div>
+    </main>
+
+    <!-- Randevu Modalı -->
+    <div id="randevuModal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
+        <div class="bg-gray-800 rounded-lg p-8 w-full max-w-md flex flex-col items-center">
+            <h2 class="text-2xl font-bold mb-4">Mentör ile Randevu Al</h2>
+            <form id="randevuForm" class="w-full flex flex-col gap-4">
+                <input type="text" id="modalMentorName" class="w-full px-4 py-2 rounded bg-gray-900 text-white" disabled />
+                <input type="date" id="randevuTarih" class="w-full px-4 py-2 rounded bg-gray-900 text-white" required />
+                <input type="time" id="randevuSaat" class="w-full px-4 py-2 rounded bg-gray-900 text-white" required />
+                <textarea id="randevuNot" class="w-full px-4 py-2 rounded bg-gray-900 text-white" placeholder="Kısa bir not (isteğe bağlı)"></textarea>
+                <div class="flex gap-2 justify-end">
+                    <button type="button" id="closeModalBtn" class="px-4 py-2 text-gray-400 hover:text-white">İptal</button>
+                    <button type="submit" class="px-4 py-2 bg-yellow-400 text-gray-900 rounded hover:bg-yellow-300 font-semibold">Randevu İste</button>
+                </div>
+            </form>
+            <div id="randevuStatus" class="mt-4 text-center"></div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { firebaseConfig } from './firebase-config.js';
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Dropdown menü aç/kapat
+        const avatarBtn = document.getElementById('avatarBtn');
+        const dropdownMenu = document.getElementById('dropdownMenu');
+        avatarBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            dropdownMenu.classList.toggle('hidden');
+        });
+        // Sayfanın başka yerine tıklanınca menüyü kapat
+        document.addEventListener('click', (e) => {
+            if (!avatarBtn.contains(e.target)) {
+                dropdownMenu.classList.add('hidden');
+            }
+        });
+
+        // Çıkış işlemi
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            signOut(auth).then(() => {
+                window.location.href = "anasayfa.html";
+            }).catch((error) => {
+                console.error("Çıkış yapılırken hata oluştu:", error);
+            });
+        });
+
+        // Profili Düzenle ve Ayarlar butonları
+        document.getElementById('editProfileBtn').addEventListener('click', () => {
+            window.location.href = "profil.html";
+        });
+        document.getElementById('settingsBtn').addEventListener('click', () => {
+            window.location.href = "ayarlar.html";
+        });
+
+        // Kullanıcı adı ve avatarı doldur
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                try {
+                    const userDoc = await getDoc(doc(db, "users", user.uid));
+                    let adSoyad = user.displayName || user.email;
+                    if (userDoc.exists()) {
+                        const userData = userDoc.data();
+                        const ad = userData.ad || '';
+                        const soyad = userData.soyad || '';
+                        adSoyad = (ad + ' ' + soyad).trim() || adSoyad;
+                        document.getElementById('userAvatar').src = `https://ui-avatars.com/api/?name=${encodeURIComponent(adSoyad)}&background=FACC15&color=111827&size=64`;
+                    }
+                } catch (error) {
+                    console.error("Kullanıcı bilgileri alınamadı:", error);
+                }
+            } else {
+                window.location.href = "anasayfa.html";
+            }
+        });
+    </script>
+
+    <!-- Navigation Script -->
+    <script src="js/navigation.js"></script>
+    <script src="js/avatarMenu.js"></script>
+    <script>
+    // Random mentör verileri
+    const mentors = [
+        {
+            name: "Dr. Ayşe Yılmaz",
+            avatar: "https://randomuser.me/api/portraits/women/68.jpg",
+            title: "Kariyer Koçu & İnsan Kaynakları Uzmanı",
+            bio: "10+ yıl deneyimli, gençlere kariyer planlama ve mülakat teknikleri konusunda mentorluk yapıyor.",
+            experience: 12,
+            location: "İstanbul",
+            tags: ["CV Hazırlama", "Mülakat", "Kariyer Planlama"]
+        },
+        {
+            name: "Mehmet Demir",
+            avatar: "https://randomuser.me/api/portraits/men/45.jpg",
+            title: "Yazılım Geliştirici & Eğitmen",
+            bio: "Full-stack developer, yazılım sektöründe iş bulma ve teknik mülakatlar konusunda destek oluyor.",
+            experience: 8,
+            location: "Ankara",
+            tags: ["Yazılım", "Teknik Mülakat", "Staj"]
+        },
+        {
+            name: "Elif Kaya",
+            avatar: "https://randomuser.me/api/portraits/women/65.jpg",
+            title: "Psikolojik Danışman",
+            bio: "Üniversite öğrencilerine motivasyon, stres yönetimi ve kariyer hedefleri belirleme konularında yardımcı oluyor.",
+            experience: 6,
+            location: "İzmir",
+            tags: ["Motivasyon", "Stres Yönetimi", "Hedef Belirleme"]
+        },
+        {
+            name: "Ali Can",
+            avatar: "https://randomuser.me/api/portraits/men/32.jpg",
+            title: "Girişimci & Start-up Danışmanı",
+            bio: "Kendi girişimini kurmak isteyen gençlere yol gösteriyor, iş modeli ve network konularında destek veriyor.",
+            experience: 9,
+            location: "Remote",
+            tags: ["Girişimcilik", "Start-up", "Network"]
+        },
+        {
+            name: "Zeynep Şahin",
+            avatar: "https://randomuser.me/api/portraits/women/44.jpg",
+            title: "Endüstri Mühendisi & Proje Yöneticisi",
+            bio: "Proje yönetimi, staj ve iş başvuruları süreçlerinde mentorluk sağlıyor.",
+            experience: 7,
+            location: "Bursa",
+            tags: ["Proje Yönetimi", "Staj", "İş Başvurusu"]
+        },
+        {
+            name: "Burak Kılıç",
+            avatar: "https://randomuser.me/api/portraits/men/65.jpg",
+            title: "Veri Bilimci",
+            bio: "Veri bilimi, analitik ve teknik beceriler geliştirme konularında öğrencilere destek oluyor.",
+            experience: 5,
+            location: "İstanbul",
+            tags: ["Veri Bilimi", "Analitik", "Teknik Beceri"]
+        }
+    ];
+
+    // Mentör kartlarını oluştur
+    const mentorGrid = document.getElementById('mentorGrid');
+    mentors.forEach((mentor, idx) => {
+        const card = document.createElement('div');
+        card.className = "bg-gray-800 rounded-xl shadow-lg p-6 flex flex-col items-center text-center hover:shadow-2xl transition";
+        card.innerHTML = `
+            <img src="${mentor.avatar}" alt="${mentor.name}" class="w-20 h-20 rounded-full mb-3 object-cover border-4 border-yellow-400" />
+            <div class="font-bold text-lg mb-1 text-yellow-400">${mentor.name}</div>
+            <div class="text-gray-300 mb-1">${mentor.title}</div>
+            <div class="text-gray-400 text-sm mb-2">${mentor.bio}</div>
+            <div class="flex flex-wrap gap-2 justify-center mb-2">
+                ${mentor.tags.map(tag => `<span class='bg-yellow-400/20 text-yellow-300 px-2 py-1 rounded text-xs'>${tag}</span>`).join('')}
+            </div>
+            <div class="flex gap-4 text-xs text-gray-400 mb-4">
+                <span>📍 ${mentor.location}</span>
+                <span>⏳ ${mentor.experience} yıl deneyim</span>
+            </div>
+            <button class="bg-yellow-400 text-gray-900 px-4 py-2 rounded hover:bg-yellow-300 font-semibold mt-auto" onclick="openRandevuModal('${mentor.name}')">Randevu Al</button>
+        `;
+        mentorGrid.appendChild(card);
+    });
+
+    // Randevu modalı fonksiyonları
+    window.openRandevuModal = function(mentorName) {
+        document.getElementById('modalMentorName').value = mentorName;
+        document.getElementById('randevuTarih').value = '';
+        document.getElementById('randevuSaat').value = '';
+        document.getElementById('randevuNot').value = '';
+        document.getElementById('randevuStatus').textContent = '';
+        document.getElementById('randevuModal').classList.remove('hidden');
+    };
+    document.getElementById('closeModalBtn').onclick = function() {
+        document.getElementById('randevuModal').classList.add('hidden');
+    };
+    document.getElementById('randevuForm').onsubmit = function(e) {
+        e.preventDefault();
+        document.getElementById('randevuStatus').textContent = 'Randevu talebiniz iletildi! (Demo)';
+        setTimeout(() => {
+            document.getElementById('randevuModal').classList.add('hidden');
+        }, 1500);
+    };
+    </script>
+</body>
+</html>

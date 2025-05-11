@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mentor Paneli</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script src="../firebase-config.js"></script>
+</head>
+<body class="bg-gradient-to-br from-gray-900 to-gray-800 min-h-screen text-white">
+  <!-- Header -->
+  <header class="bg-gray-800 shadow-lg">
+    <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+      <h1 class="text-2xl font-bold">Mentor Paneli</h1>
+      <div class="flex items-center space-x-4">
+        <span id="userName" class="text-gray-300"></span>
+        <button id="logoutBtn" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-md">Çıkış Yap</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="container mx-auto px-4 py-8">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <!-- Mentor Profili Kartı -->
+      <div class="bg-gray-800 rounded-lg p-6 shadow-lg">
+        <h2 class="text-xl font-semibold mb-4">Mentor Profili</h2>
+        <p class="text-gray-400 mb-4">Profilinizi düzenleyin ve uzmanlık alanlarınızı belirtin.</p>
+        <a href="../mentor-profil.html" class="inline-block bg-yellow-500 hover:bg-yellow-600 text-gray-900 px-4 py-2 rounded-md">Profili Düzenle</a>
+      </div>
+
+      <!-- Mentorluk Talepleri Kartı -->
+      <div class="bg-gray-800 rounded-lg p-6 shadow-lg">
+        <h2 class="text-xl font-semibold mb-4">Mentorluk Talepleri</h2>
+        <p class="text-gray-400 mb-4">Gelen mentorluk taleplerini görüntüleyin ve yönetin.</p>
+        <a href="../mentor-talepler.html" class="inline-block bg-yellow-500 hover:bg-yellow-600 text-gray-900 px-4 py-2 rounded-md">Talepleri Görüntüle</a>
+      </div>
+
+      <!-- Takvim Kartı -->
+      <div class="bg-gray-800 rounded-lg p-6 shadow-lg">
+        <h2 class="text-xl font-semibold mb-4">Takvim</h2>
+        <p class="text-gray-400 mb-4">Mentorluk seanslarınızı planlayın ve yönetin.</p>
+        <a href="../mentor-takvim.html" class="inline-block bg-yellow-500 hover:bg-yellow-600 text-gray-900 px-4 py-2 rounded-md">Takvimi Görüntüle</a>
+      </div>
+
+      <!-- Mentorluk Geçmişi Kartı -->
+      <div class="bg-gray-800 rounded-lg p-6 shadow-lg">
+        <h2 class="text-xl font-semibold mb-4">Mentorluk Geçmişi</h2>
+        <p class="text-gray-400 mb-4">Geçmiş mentorluk seanslarınızı görüntüleyin.</p>
+        <a href="../mentor-gecmis.html" class="inline-block bg-yellow-500 hover:bg-yellow-600 text-gray-900 px-4 py-2 rounded-md">Geçmişi Görüntüle</a>
+      </div>
+
+      <!-- Değerlendirmeler Kartı -->
+      <div class="bg-gray-800 rounded-lg p-6 shadow-lg">
+        <h2 class="text-xl font-semibold mb-4">Değerlendirmeler</h2>
+        <p class="text-gray-400 mb-4">Mentorluk yaptığınız öğrencilerin değerlendirmelerini görüntüleyin.</p>
+        <a href="../mentor-degerlendirmeler.html" class="inline-block bg-yellow-500 hover:bg-yellow-600 text-gray-900 px-4 py-2 rounded-md">Değerlendirmeleri Görüntüle</a>
+      </div>
+
+      <!-- Ayarlar Kartı -->
+      <div class="bg-gray-800 rounded-lg p-6 shadow-lg">
+        <h2 class="text-xl font-semibold mb-4">Ayarlar</h2>
+        <p class="text-gray-400 mb-4">Hesap ayarlarınızı yönetin.</p>
+        <a href="../ayarlar.html" class="inline-block bg-yellow-500 hover:bg-yellow-600 text-gray-900 px-4 py-2 rounded-md">Ayarları Düzenle</a>
+      </div>
+    </div>
+  </main>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { firebaseConfig } from '../firebase-config.js';
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // Kullanıcı durumunu kontrol et
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        // Kullanıcı bilgilerini getir
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          document.getElementById('userName').textContent = `${userData.ad} ${userData.soyad}`;
+          
+          // Rol kontrolü
+          if (userData.rol !== 'mentor') {
+            window.location.href = "../giris.html";
+          }
+        }
+      } else {
+        window.location.href = "../giris.html";
+      }
+    });
+
+    // Çıkış yapma
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      try {
+        await signOut(auth);
+        window.location.href = "../giris.html";
+      } catch (error) {
+        console.error("Çıkış yapılırken hata oluştu:", error);
+      }
+    });
+  </script>
+</body>
+</html> 

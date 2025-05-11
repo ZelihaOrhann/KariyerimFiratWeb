@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Etkinlikler</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  
+  <!-- Firebase Config -->
+  <script src="firebase-config.js"></script>
+</head>
+<body class="bg-gray-800 text-white font-sans flex flex-col min-h-screen">
+
+  <!-- Header -->
+  <header class="bg-gray-800 shadow-lg">
+    <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+      <h1 class="text-2xl font-bold">Etkinlikler</h1>
+      <!-- Avatar menü burada olacak, ayrı ekleniyor -->
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-1 p-4 space-y-6">
+    <section class="bg-green-900 p-4 rounded-md">
+      <h2 class="font-bold text-lg">Etkinlikler</h2>
+      <p class="mt-2 text-sm">
+        Burada etkinlikler listelenecek...
+      </p>
+    </section>
+  </main>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { firebaseConfig } from './firebase-config.js';
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // Dropdown menü aç/kapat
+    const avatarBtn = document.getElementById('avatarBtn');
+    const dropdownMenu = document.getElementById('dropdownMenu');
+    avatarBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      dropdownMenu.classList.toggle('hidden');
+    });
+    // Sayfanın başka yerine tıklanınca menüyü kapat
+    document.addEventListener('click', (e) => {
+      if (!avatarBtn.contains(e.target)) {
+        dropdownMenu.classList.add('hidden');
+      }
+    });
+
+    // Çıkış işlemi
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      signOut(auth).then(() => {
+        window.location.href = "anasayfa.html";
+      }).catch((error) => {
+        console.error("Çıkış yapılırken hata oluştu:", error);
+      });
+    });
+
+    // Profili Düzenle ve Ayarlar butonları
+    document.getElementById('editProfileBtn').addEventListener('click', () => {
+      window.location.href = "profil.html";
+    });
+    document.getElementById('settingsBtn').addEventListener('click', () => {
+      window.location.href = "ayarlar.html";
+    });
+
+    // Kullanıcı adı ve avatarı doldur
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        try {
+          const userDoc = await getDoc(doc(db, "users", user.uid));
+          let adSoyad = user.displayName || user.email;
+          if (userDoc.exists()) {
+            const userData = userDoc.data();
+            const ad = userData.ad || '';
+            const soyad = userData.soyad || '';
+            adSoyad = (ad + ' ' + soyad).trim() || adSoyad;
+            document.getElementById('userAvatar').src = `https://ui-avatars.com/api/?name=${encodeURIComponent(adSoyad)}&background=FACC15&color=111827&size=64`;
+          }
+        } catch (error) {
+          console.error("Kullanıcı bilgileri alınamadı:", error);
+        }
+      } else {
+        window.location.href = "anasayfa.html";
+      }
+    });
+  </script>
+
+  <!-- Navigation Script -->
+  <script src="js/navigation.js"></script>
+  <script src="js/avatarMenu.js"></script>
+</body>
+</html>

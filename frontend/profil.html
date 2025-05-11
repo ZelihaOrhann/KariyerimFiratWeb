@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Profilim</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white min-h-screen flex items-center justify-center">
+  <div class="bg-gray-800 rounded-lg shadow-lg p-8 w-full max-w-md flex flex-col items-center">
+    <img id="userAvatar" src="https://ui-avatars.com/api/?name=Kullanici&background=FACC15&color=111827&size=128" alt="Avatar" class="rounded-full w-32 h-32 mb-4 object-cover" />
+    <h2 class="text-2xl font-bold mb-2" id="adSoyad">Ad Soyad</h2>
+    <p class="text-gray-400 mb-4" id="email">eposta@ornek.com</p>
+    <div class="w-full mt-6">
+      <div class="mb-2">
+        <span class="font-semibold">Ad:</span> <span id="ad">-</span>
+      </div>
+      <div class="mb-2">
+        <span class="font-semibold">Soyad:</span> <span id="soyad">-</span>
+      </div>
+      <div class="mb-2">
+        <span class="font-semibold">E-posta:</span> <span id="emailDetay">-</span>
+      </div>
+    </div>
+    <button onclick="window.history.back()" class="mt-8 px-6 py-2 bg-yellow-400 text-gray-900 rounded hover:bg-yellow-300 font-semibold">Geri Dön</button>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { firebaseConfig } from './firebase-config.js';
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        try {
+          const userDoc = await getDoc(doc(db, "users", user.uid));
+          let ad = user.displayName || "-";
+          let soyad = "-";
+          let email = user.email || "-";
+          if (userDoc.exists()) {
+            const data = userDoc.data();
+            ad = data.ad || ad;
+            soyad = data.soyad || "-";
+            email = data.email || email;
+          }
+          document.getElementById('adSoyad').textContent = ad + ' ' + soyad;
+          document.getElementById('ad').textContent = ad;
+          document.getElementById('soyad').textContent = soyad;
+          document.getElementById('email').textContent = email;
+          document.getElementById('emailDetay').textContent = email;
+          document.getElementById('userAvatar').src = `https://ui-avatars.com/api/?name=${encodeURIComponent(ad + ' ' + soyad)}&background=FACC15&color=111827&size=128`;
+        } catch (error) {
+          alert('Kullanıcı bilgileri alınamadı!');
+        }
+      } else {
+        window.location.href = "giris.html";
+      }
+    });
+  </script>
+</body>
+</html> 

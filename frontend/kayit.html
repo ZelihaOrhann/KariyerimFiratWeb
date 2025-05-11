@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ücretsiz Hesap Oluştur</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { firebaseConfig } from './firebase-config.js';
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const googleProvider = new GoogleAuthProvider();
+
+    document.getElementById('signupForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const ad = document.getElementById('ad').value;
+      const soyad = document.getElementById('soyad').value;
+      const email = document.getElementById('email').value;
+      const sifre = document.getElementById('sifre').value;
+      const rol = document.getElementById('rol').value;
+      const submitButton = document.getElementById('submitButton');
+      const loadingIndicator = document.getElementById('loadingIndicator');
+      submitButton.disabled = true;
+      loadingIndicator.classList.remove('hidden');
+      try {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, sifre);
+        const user = userCredential.user;
+        await setDoc(doc(db, "users", user.uid), {
+          ad,
+          soyad,
+          email,
+          rol,
+          emailVerified: false,
+          createdAt: new Date().toISOString()
+        });
+        // E-posta doğrulama gönder
+        await sendEmailVerification(user);
+        alert("Kayıt başarılı!");
+        // Doğrulama mesajını göster
+        document.getElementById('verificationMessage').classList.remove('hidden');
+        // 3 saniye sonra role göre yönlendir
+        setTimeout(() => {
+          if (rol === 'ogrenci') {
+            window.location.href = "anagiris.html";
+          } else if (rol === 'mentor') {
+            window.location.href = "mentor/anasayfa.html";
+          } else if (rol === 'isveren') {
+            window.location.href = "isveren/anasayfa.html";
+          } else {
+            window.location.href = "anagiris.html";
+          }
+        }, 3000);
+      } catch (error) {
+        let errorMessage = "Kayıt olurken bir hata oluştu.";
+        
+        switch (error.code) {
+          case 'auth/email-already-in-use':
+            errorMessage = "Bu e-posta adresi zaten kullanımda.";
+            break;
+          case 'auth/invalid-email':
+            errorMessage = "Geçersiz e-posta adresi.";
+            break;
+          case 'auth/operation-not-allowed':
+            errorMessage = "E-posta/şifre girişi etkin değil.";
+            break;
+          case 'auth/weak-password':
+            errorMessage = "Şifre çok zayıf.";
+            break;
+        }
+        
+        alert(errorMessage);
+        submitButton.disabled = false;
+        loadingIndicator.classList.add('hidden');
+      }
+    });
+
+    window.signInWithGoogle = async () => {
+      // Google ile kayıt için Firestore'a şifre alanı eklenmez, sadece demo için email, ad, soyad eklenir
+      const googleButton = document.querySelector('button[onclick="signInWithGoogle()"]');
+      const loadingIndicator = document.getElementById('loadingIndicator');
+      googleButton.disabled = true;
+      loadingIndicator.classList.remove('hidden');
+      try {
+        const result = await signInWithPopup(auth, googleProvider);
+        const user = result.user;
+        await setDoc(doc(db, "users", user.uid), {
+          ad: user.displayName?.split(' ')[0] || '',
+          soyad: user.displayName?.split(' ')[1] || '',
+          email: user.email
+        });
+        alert("Google ile giriş başarılı!");
+        window.location.href = "anagiris.html";
+      } catch (error) {
+        alert("Hata: " + error.message);
+        googleButton.disabled = false;
+        loadingIndicator.classList.add('hidden');
+      }
+    };
+
+    window.signInWithLinkedIn = () => {
+      alert("LinkedIn girişi yakında eklenecek!");
+    };
+  </script>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-gray-800 to-gray-900 text-white flex items-center justify-center p-4">
+  <div class="w-full max-w-md bg-transparent">
+    <h2 class="text-3xl font-bold mb-2">Ücretsiz</h2>
+    <h2 class="text-3xl font-bold mb-6">Hesap Oluştur</h2>
+
+    <form id="signupForm" class="space-y-4">
+      <div>
+        <label class="block text-sm mb-1" for="ad">Ad</label>
+        <input type="text" id="ad" class="w-full px-4 py-2 bg-transparent border-b border-white placeholder-gray-300 focus:outline-none" placeholder="Ad" required />
+      </div>
+      <div>
+        <label class="block text-sm mb-1" for="soyad">Soyad</label>
+        <input type="text" id="soyad" class="w-full px-4 py-2 bg-transparent border-b border-white placeholder-gray-300 focus:outline-none" placeholder="Soyad" required />
+      </div>
+      <div>
+        <label class="block text-sm mb-1" for="email">Eposta</label>
+        <input type="email" id="email" class="w-full px-4 py-2 bg-transparent border-b border-white placeholder-gray-300 focus:outline-none" placeholder="Eposta" required />
+      </div>
+      <div class="relative">
+        <label class="block text-sm mb-1" for="sifre">Şifre</label>
+        <input type="password" id="sifre" class="w-full px-4 py-2 bg-transparent border-b border-white placeholder-gray-300 focus:outline-none" placeholder="Şifre" required />
+        <span class="absolute right-2 bottom-2 cursor-pointer text-gray-400" onclick="togglePassword()">👁️</span>
+      </div>
+
+      <!-- Rol Seçimi -->
+      <div>
+        <label class="block text-sm mb-1" for="rol">Hesap Türü</label>
+        <select id="rol" class="w-full px-4 py-2 bg-transparent border-b border-white text-white focus:outline-none" required>
+          <option value="" disabled selected>Hesap türünü seçin</option>
+          <option value="ogrenci">Öğrenci</option>
+          <option value="mentor">Mentor</option>
+          <option value="isveren">İşveren</option>
+        </select>
+      </div>
+
+      <button type="submit" id="submitButton" class="w-full bg-gray-600 hover:bg-gray-700 py-2 rounded-md shadow mt-4 font-semibold">
+        Kayıt Ol
+      </button>
+      <div id="loadingIndicator" class="hidden mt-4 text-center">
+        <div class="inline-block animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-yellow-400"></div>
+        <span class="ml-2">İşleminiz gerçekleştiriliyor...</span>
+      </div>
+    </form>
+
+    <div class="text-center mt-6 text-sm text-gray-400">veya</div>
+
+    <div class="flex justify-center gap-6 mt-4">
+      <button onclick="signInWithGoogle()" class="flex items-center gap-2 bg-white text-gray-800 px-4 py-2 rounded-md hover:bg-gray-100">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google" class="w-5 h-5" />
+        Google ile Kayıt Ol
+      </button>
+      
+      <button onclick="signInWithLinkedIn()" class="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/c/ca/LinkedIn_logo_initials.png" alt="LinkedIn" class="w-5 h-5" />
+        LinkedIn ile Kayıt Ol
+      </button>
+    </div>
+
+    <!-- Doğrulama Mesajı -->
+    <div id="verificationMessage" class="hidden mt-4 p-4 bg-green-900 rounded-md">
+      <p class="text-center">Doğrulama e-postası gönderildi. Lütfen e-posta adresinizi kontrol edin.</p>
+    </div>
+  </div>
+
+  <script>
+    // Şifre göster/gizle fonksiyonu
+    function togglePassword() {
+      const passwordInput = document.getElementById('sifre');
+      passwordInput.type = passwordInput.type === 'password' ? 'text' : 'password';
+    }
+  </script>
+</body>
+</html>
