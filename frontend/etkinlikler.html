@@ -14,24 +14,62 @@
   <!-- Firebase Config -->
   <script src="firebase-config.js"></script>
 </head>
-<body class="bg-gray-800 text-white font-sans flex flex-col min-h-screen">
+<body class="bg-gradient-to-br from-gray-900 to-gray-800 text-white min-h-screen flex flex-col pb-24">
 
   <!-- Header -->
   <header class="bg-gray-800 shadow-lg">
     <div class="container mx-auto px-4 py-4 flex justify-between items-center">
       <h1 class="text-2xl font-bold">Etkinlikler</h1>
-      <!-- Avatar menü burada olacak, ayrı ekleniyor -->
+      
     </div>
   </header>
 
-  <!-- Main Content -->
-  <main class="flex-1 p-4 space-y-6">
-    <section class="bg-green-900 p-4 rounded-md">
-      <h2 class="font-bold text-lg">Etkinlikler</h2>
-      <p class="mt-2 text-sm">
-        Burada etkinlikler listelenecek...
-      </p>
-    </section>
+  <!-- Hero & Filtreler -->
+  <section class="container mx-auto px-4 py-8">
+    <h2 class="text-3xl font-extrabold mb-4">Etkinlikleri Keşfet</h2>
+    <div class="bg-white/90 rounded-2xl shadow flex flex-col md:flex-row items-center gap-2 p-4 mb-6">
+      <div class="flex items-center flex-1">
+        <svg class="w-5 h-5 text-gray-400 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z"/></svg>
+        <input type="text" placeholder="Katılmak istediğin etkinliği ara" class="bg-transparent outline-none w-full text-gray-800 placeholder-gray-400" />
+      </div>
+      <div class="flex-1">
+        <select class="w-full bg-transparent text-gray-700 px-2 py-2 rounded focus:outline-none">
+          <option>Kategori</option>
+          <option>Eğlence</option>
+          <option>Festival</option>
+          <option>Fuar</option>
+          <option>Gezi</option>
+          <option>Zirve</option>
+        </select>
+      </div>
+      <div class="flex-1">
+        <select class="w-full bg-transparent text-gray-700 px-2 py-2 rounded focus:outline-none">
+          <option>Lokasyon</option>
+          <option>İstanbul</option>
+          <option>Ankara</option>
+          <option>İzmir</option>
+        </select>
+      </div>
+      <div class="flex-1">
+        <input type="date" class="w-full bg-transparent text-gray-700 px-2 py-2 rounded focus:outline-none" />
+      </div>
+    </div>
+    <!-- Kategori Menü -->
+    <div class="flex gap-4 mb-6">
+      <button class="kategori-btn bg-blue-600 text-white px-5 py-2 rounded-full font-semibold" data-kategori="hepsi">Hepsi</button>
+      <button class="kategori-btn text-gray-200 hover:bg-blue-700 hover:text-white px-5 py-2 rounded-full" data-kategori="eglence">Eğlence</button>
+      <button class="kategori-btn text-gray-200 hover:bg-blue-700 hover:text-white px-5 py-2 rounded-full" data-kategori="festival">Festival</button>
+      <button class="kategori-btn text-gray-200 hover:bg-blue-700 hover:text-white px-5 py-2 rounded-full" data-kategori="fuar">Fuar</button>
+      <button class="kategori-btn text-gray-200 hover:bg-blue-700 hover:text-white px-5 py-2 rounded-full" data-kategori="gezi">Gezi</button>
+      <button class="kategori-btn text-gray-200 hover:bg-blue-700 hover:text-white px-5 py-2 rounded-full" data-kategori="zirve">Zirve</button>
+    </div>
+  </section>
+
+  <!-- Etkinlik Kartları -->
+  <main class="container mx-auto px-4 flex-1">
+    <div id="etkinlikGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+      <!-- Etkinlik kartları JS ile eklenecek -->
+    </div>
   </main>
 
   <script type="module">
@@ -100,5 +138,47 @@
   <!-- Navigation Script -->
   <script src="js/navigation.js"></script>
   <script src="js/avatarMenu.js"></script>
+
+  <script>
+  // Demo etkinlik verileri
+  const etkinlikler = [
+    { baslik: "Yaz Festivali", kategori: "festival", lokasyon: "İstanbul", tarih: "2024-07-15", aciklama: "Müzik, eğlence ve atölyelerle dolu bir festival!", afis: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=facearea&w=400&h=400&q=80" },
+    { baslik: "Teknoloji Zirvesi", kategori: "zirve", lokasyon: "Ankara", tarih: "2024-08-10", aciklama: "Sektörün liderleriyle buluş, yeni teknolojileri keşfet.", afis: "https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=facearea&w=400&h=400&q=80" },
+    { baslik: "Kariyer Fuarı", kategori: "fuar", lokasyon: "İzmir", tarih: "2024-09-05", aciklama: "Birçok firma ile tanış, iş ve staj fırsatlarını yakala.", afis: "https://images.unsplash.com/photo-1515168833906-d2a3b82b3029?auto=format&fit=facearea&w=400&h=400&q=80" },
+    { baslik: "Doğa Gezisi", kategori: "gezi", lokasyon: "Bursa", tarih: "2024-06-20", aciklama: "Şehrin stresinden uzaklaş, doğayla buluş.", afis: "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=facearea&w=400&h=400&q=80" },
+    { baslik: "Stand-up Gecesi", kategori: "eglence", lokasyon: "İstanbul", tarih: "2024-07-22", aciklama: "Ünlü komedyenlerle kahkaha dolu bir akşam.", afis: "https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=facearea&w=400&h=400&q=80" },
+    { baslik: "Startup Festivali", kategori: "festival", lokasyon: "Ankara", tarih: "2024-10-01", aciklama: "Girişimciler ve yatırımcılar bir arada.", afis: "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=facearea&w=400&h=400&q=80" }
+  ];
+
+  // Etkinlik kartlarını oluştur
+  const etkinlikGrid = document.getElementById('etkinlikGrid');
+  function etkinlikleriGoster(kategori = 'hepsi') {
+    etkinlikGrid.innerHTML = '';
+    etkinlikler.filter(e => kategori === 'hepsi' || e.kategori === kategori)
+      .forEach(etkinlik => {
+        const card = document.createElement('div');
+        card.className = "bg-gray-800 rounded-xl shadow-lg p-5 flex flex-col hover:shadow-2xl transition";
+        card.innerHTML = `
+          <img src="${etkinlik.afis}" alt="${etkinlik.baslik}" class="w-full h-40 object-cover rounded-lg mb-3" />
+          <div class="font-bold text-lg mb-1 text-yellow-400">${etkinlik.baslik}</div>
+          <div class="text-gray-300 mb-1">${etkinlik.lokasyon} • ${etkinlik.tarih}</div>
+          <div class="text-gray-400 text-sm mb-2">${etkinlik.aciklama}</div>
+          <span class="inline-block bg-blue-600/20 text-blue-400 px-3 py-1 rounded text-xs mb-2">${etkinlik.kategori.charAt(0).toUpperCase() + etkinlik.kategori.slice(1)}</span>
+          <button class="bg-yellow-400 text-gray-900 px-4 py-2 rounded hover:bg-yellow-300 font-semibold mt-auto" onclick="window.location.href='etkinlik-detay.html?baslik=${encodeURIComponent(etkinlik.baslik)}'">Detay</button>
+        `;
+        etkinlikGrid.appendChild(card);
+      });
+  }
+  etkinlikleriGoster();
+
+  // Kategori butonları
+  document.querySelectorAll('.kategori-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.kategori-btn').forEach(b => b.classList.remove('bg-blue-600', 'text-white'));
+      this.classList.add('bg-blue-600', 'text-white');
+      etkinlikleriGoster(this.dataset.kategori);
+    });
+  });
+  </script>
 </body>
 </html>
