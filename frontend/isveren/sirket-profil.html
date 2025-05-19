@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Şirket Profili Düzenle - KariyerimFırat</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-gray-900 to-gray-800 min-h-screen text-white flex flex-col items-center justify-center py-12">
+  <div class="bg-gray-900 rounded-2xl shadow-xl p-8 w-full max-w-xl flex flex-col items-center">
+    <h1 class="text-2xl font-bold mb-2">Şirket Profili</h1>
+    <p class="text-gray-400 mb-6">Şirket bilgilerinizi düzenleyin ve güncelleyin.</p>
+    <form id="companyProfileForm" class="w-full flex flex-col gap-6">
+      <div>
+        <label class="block text-gray-300 mb-1" for="companyName">Şirket Adı</label>
+        <input type="text" id="companyName" name="companyName" class="w-full px-4 py-2 rounded border border-gray-700 bg-gray-800 text-white focus:outline-none focus:border-yellow-400" required />
+      </div>
+      <div>
+        <label class="block text-gray-300 mb-1" for="sector">Sektör</label>
+        <input type="text" id="sector" name="sector" class="w-full px-4 py-2 rounded border border-gray-700 bg-gray-800 text-white focus:outline-none focus:border-yellow-400" required />
+      </div>
+      <div>
+        <label class="block text-gray-300 mb-1" for="description">Açıklama</label>
+        <textarea id="description" name="description" rows="3" class="w-full px-4 py-2 rounded border border-gray-700 bg-gray-800 text-white focus:outline-none focus:border-yellow-400"></textarea>
+      </div>
+      <div>
+        <label class="block text-gray-300 mb-1" for="address">Adres</label>
+        <input type="text" id="address" name="address" class="w-full px-4 py-2 rounded border border-gray-700 bg-gray-800 text-white focus:outline-none focus:border-yellow-400" />
+      </div>
+      <div class="flex gap-4">
+        <div class="flex-1">
+          <label class="block text-gray-300 mb-1" for="phone">Telefon</label>
+          <input type="text" id="phone" name="phone" class="w-full px-4 py-2 rounded border border-gray-700 bg-gray-800 text-white focus:outline-none focus:border-yellow-400" />
+        </div>
+        <div class="flex-1">
+          <label class="block text-gray-300 mb-1" for="website">Web Sitesi</label>
+          <input type="url" id="website" name="website" class="w-full px-4 py-2 rounded border border-gray-700 bg-gray-800 text-white focus:outline-none focus:border-yellow-400" />
+        </div>
+      </div>
+      <div>
+        <label class="block text-gray-300 mb-1" for="logo">Şirket Logosu</label>
+        <input type="file" id="logo" name="logo" accept="image/*" class="w-full text-gray-300" />
+        <div id="logoPreview" class="mt-2"></div>
+      </div>
+      <button type="submit" class="bg-yellow-400 hover:bg-yellow-300 text-gray-900 font-semibold px-6 py-2 rounded-lg">Kaydet</button>
+    </form>
+    <a href="anasayfa.html" class="mt-8 text-yellow-400 hover:underline">Panele Dön</a>
+    <div id="statusMsg" class="mt-4 text-center"></div>
+  </div>
+
+  <script type="module">
+    // Demo şirket verisi
+    let companyData = {
+      companyName: "Tech Solutions A.Ş.",
+      sector: "Yazılım ve Teknoloji",
+      description: "Modern web ve mobil çözümler üreten bir teknoloji şirketiyiz.",
+      address: "İstanbul, Türkiye",
+      phone: "+90 212 123 45 67",
+      website: "https://techsolutions.com.tr",
+      logoUrl: "https://upload.wikimedia.org/wikipedia/commons/6/6a/Enerjisa_logo.png"
+    };
+
+    // Formu doldur
+    document.getElementById('companyName').value = companyData.companyName;
+    document.getElementById('sector').value = companyData.sector;
+    document.getElementById('description').value = companyData.description;
+    document.getElementById('address').value = companyData.address;
+    document.getElementById('phone').value = companyData.phone;
+    document.getElementById('website').value = companyData.website;
+    if (companyData.logoUrl) {
+      document.getElementById('logoPreview').innerHTML = `<img src="${companyData.logoUrl}" alt="Logo" class="w-24 h-24 object-contain rounded-lg border border-gray-700" />`;
+    }
+
+    // Logo önizleme
+    document.getElementById('logo').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+          document.getElementById('logoPreview').innerHTML = `<img src="${evt.target.result}" alt="Logo" class="w-24 h-24 object-contain rounded-lg border border-gray-700" />`;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // Form submit
+    document.getElementById('companyProfileForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      // Demo güncelleme
+      companyData = {
+        companyName: document.getElementById('companyName').value.trim(),
+        sector: document.getElementById('sector').value.trim(),
+        description: document.getElementById('description').value.trim(),
+        address: document.getElementById('address').value.trim(),
+        phone: document.getElementById('phone').value.trim(),
+        website: document.getElementById('website').value.trim(),
+        logoUrl: companyData.logoUrl // Gerçek projede burada dosya yükleme yapılacak
+      };
+      document.getElementById('statusMsg').textContent = 'Şirket bilgileri güncellendi! (Demo)';
+      document.getElementById('statusMsg').className = 'text-green-400 mt-4';
+    });
+  </script>
+</body>
+</html> 

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mentor Profili</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+</head>
+<body class="bg-gradient-to-br from-gray-900 to-gray-800 min-h-screen text-white flex flex-col items-center justify-center py-12">
+  <div class="bg-gray-900 rounded-2xl shadow-xl p-8 w-full max-w-md flex flex-col items-center">
+    <img id="mentorAvatar" src="https://ui-avatars.com/api/?name=Mentor&background=FACC15&color=111827&size=128" alt="Mentor Avatar" class="w-28 h-28 rounded-full mb-4 border-4 border-yellow-400 object-cover" />
+    <h1 id="mentorName" class="text-2xl font-bold mb-2">Mentor Adı Soyadı</h1>
+    <div class="text-gray-400 mb-1" id="mentorEmail">mentor@mail.com</div>
+    <div class="text-gray-400 mb-4" id="mentorKayit">Kayıt Tarihi: --</div>
+    <div class="flex items-center gap-2 bg-gray-800 rounded-lg px-4 py-2 mb-4">
+      <span class="text-purple-400 text-lg font-bold" id="mentorGorusme">0</span>
+      <span class="text-gray-300">öğrenciyle görüşme yapıldı</span>
+    </div>
+    <a href="mentor/anasayfa.html" class="mt-4 bg-yellow-400 hover:bg-yellow-300 text-gray-900 font-semibold px-6 py-2 rounded-lg">Panele Dön</a>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { firebaseConfig } from './firebase-config.js';
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        try {
+          const userDoc = await getDoc(doc(db, "users", user.uid));
+          if (userDoc.exists()) {
+            const userData = userDoc.data();
+            const ad = userData.ad || '';
+            const soyad = userData.soyad || '';
+            const email = userData.email || user.email;
+            const kayitTarihi = userData.createdAt ? new Date(userData.createdAt).toLocaleDateString('tr-TR') : '--';
+            document.getElementById('mentorName').textContent = `${ad} ${soyad}`.trim();
+            document.getElementById('mentorEmail').textContent = email;
+            document.getElementById('mentorKayit').textContent = `Kayıt Tarihi: ${kayitTarihi}`;
+            document.getElementById('mentorAvatar').src = `https://ui-avatars.com/api/?name=${encodeURIComponent(ad + ' ' + soyad)}&background=FACC15&color=111827&size=128`;
+            // Random görüşme sayısı (5-50 arası)
+            const gorusmeSayisi = Math.floor(Math.random() * 46) + 5;
+            document.getElementById('mentorGorusme').textContent = gorusmeSayisi;
+          }
+        } catch (error) {
+          document.getElementById('mentorName').textContent = 'Mentor';
+          document.getElementById('mentorEmail').textContent = user.email;
+        }
+      } else {
+        window.location.href = "giris.html";
+      }
+    });
+  </script>
+</body>
+</html> 

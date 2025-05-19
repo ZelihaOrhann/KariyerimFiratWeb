@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Etkinlik Yönetimi - KariyerimFırat</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+</head>
+<body class="bg-gradient-to-br from-gray-900 to-gray-800 min-h-screen text-white">
+  <!-- Header -->
+  <header class="bg-gray-800/50 backdrop-blur-sm border-b border-gray-700 fixed w-full top-0 z-50">
+    <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+      <h1 class="text-xl font-bold">Etkinlik Yönetimi</h1>
+      <button onclick="window.location.href='anasayfa.html'" class="text-yellow-400 hover:text-yellow-300">
+        <i class="fas fa-arrow-left mr-2"></i>Panele Dön
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="container mx-auto px-4 pt-24 pb-20">
+    <!-- Actions Bar -->
+    <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
+      <button onclick="showEventForm()" class="bg-yellow-400 hover:bg-yellow-300 text-gray-900 font-semibold px-4 py-2 rounded-lg flex items-center">
+        <i class="fas fa-plus mr-2"></i>Yeni Etkinlik Ekle
+      </button>
+      <div class="flex gap-2">
+        <select id="statusFilter" class="bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 focus:outline-none focus:border-yellow-400">
+          <option value="all">Tüm Etkinlikler</option>
+          <option value="active">Aktif</option>
+          <option value="draft">Taslak</option>
+          <option value="ended">Bitti</option>
+        </select>
+        <input type="text" id="searchInput" placeholder="Etkinlik ara..." class="bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 focus:outline-none focus:border-yellow-400">
+      </div>
+    </div>
+
+    <!-- Event List -->
+    <div id="eventList" class="space-y-4">
+      <!-- Etkinlik kartları buraya eklenecek -->
+    </div>
+
+    <!-- Event Form Modal (hidden by default) -->
+    <div id="eventFormModal" class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 hidden">
+      <div class="bg-gray-900 rounded-2xl shadow-xl p-8 w-full max-w-lg relative">
+        <button onclick="hideEventForm()" class="absolute top-4 right-4 text-gray-400 hover:text-red-400 text-xl"><i class="fas fa-times"></i></button>
+        <h2 class="text-xl font-bold mb-4" id="eventFormTitle">Yeni Etkinlik Ekle</h2>
+        <form id="eventForm" class="flex flex-col gap-4">
+          <input type="hidden" id="eventId" />
+          <div>
+            <label class="block text-gray-300 mb-1" for="eventName">Etkinlik Adı</label>
+            <input type="text" id="eventName" class="w-full px-4 py-2 rounded border border-gray-700 bg-gray-800 text-white focus:outline-none focus:border-yellow-400" required />
+          </div>
+          <div class="flex gap-4">
+            <div class="flex-1">
+              <label class="block text-gray-300 mb-1" for="eventDate">Tarih</label>
+              <input type="date" id="eventDate" class="w-full px-4 py-2 rounded border border-gray-700 bg-gray-800 text-white focus:outline-none focus:border-yellow-400" required />
+            </div>
+            <div class="flex-1">
+              <label class="block text-gray-300 mb-1" for="eventLocation">Lokasyon</label>
+              <input type="text" id="eventLocation" class="w-full px-4 py-2 rounded border border-gray-700 bg-gray-800 text-white focus:outline-none focus:border-yellow-400" required />
+            </div>
+          </div>
+          <div>
+            <label class="block text-gray-300 mb-1" for="eventDesc">Açıklama</label>
+            <textarea id="eventDesc" rows="3" class="w-full px-4 py-2 rounded border border-gray-700 bg-gray-800 text-white focus:outline-none focus:border-yellow-400"></textarea>
+          </div>
+          <div>
+            <label class="block text-gray-300 mb-1" for="eventStatus">Durum</label>
+            <select id="eventStatus" class="w-full px-4 py-2 rounded border border-gray-700 bg-gray-800 text-white focus:outline-none focus:border-yellow-400">
+              <option value="active">Aktif</option>
+              <option value="draft">Taslak</option>
+              <option value="ended">Bitti</option>
+            </select>
+          </div>
+          <button type="submit" class="bg-yellow-400 hover:bg-yellow-300 text-gray-900 font-semibold px-6 py-2 rounded-lg">Kaydet</button>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer Navigation -->
+  <nav class="fixed bottom-0 left-0 right-0 bg-gray-800/50 backdrop-blur-sm border-t border-gray-700">
+    <div class="container mx-auto px-4">
+      <div class="flex justify-around items-center h-16">
+        <a href="anasayfa.html" class="text-gray-400 hover:text-white">
+          <i class="fas fa-home text-xl"></i>
+        </a>
+        <a href="ilanlar.html" class="text-gray-400 hover:text-white">
+          <i class="fas fa-briefcase text-xl"></i>
+        </a>
+        <a href="basvurular.html" class="text-gray-400 hover:text-white">
+          <i class="fas fa-users text-xl"></i>
+        </a>
+        <a href="etkinlikler.html" class="text-yellow-400">
+          <i class="fas fa-calendar-alt text-xl"></i>
+        </a>
+        <a href="ayarlar.html" class="text-gray-400 hover:text-white">
+          <i class="fas fa-cog text-xl"></i>
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <script type="module">
+    // Demo etkinlik verileri
+    let demoEvents = [
+      {
+        id: 'e1',
+        name: 'Kariyer Zirvesi 2024',
+        date: '2024-06-15',
+        location: 'İstanbul',
+        desc: 'Sektör liderleriyle buluşma ve networking fırsatı.',
+        status: 'active'
+      },
+      {
+        id: 'e2',
+        name: 'Yazılım Atölyesi',
+        date: '2024-07-10',
+        location: 'Online',
+        desc: 'Web geliştirme ve modern teknolojiler üzerine atölye.',
+        status: 'draft'
+      },
+      {
+        id: 'e3',
+        name: 'Staj ve İş Fırsatları Günü',
+        date: '2024-05-20',
+        location: 'Ankara',
+        desc: 'Öğrenciler ve yeni mezunlar için staj ve iş fırsatları.',
+        status: 'ended'
+      }
+    ];
+
+    let currentEvents = [...demoEvents];
+
+    function statusBadge(status) {
+      const map = {
+        active: 'Aktif',
+        draft: 'Taslak',
+        ended: 'Bitti'
+      };
+      const color = {
+        active: 'bg-green-500/20 text-green-400',
+        draft: 'bg-yellow-500/20 text-yellow-400',
+        ended: 'bg-red-500/20 text-red-400'
+      };
+      return `<span class="${color[status]} text-xs px-2 py-1 rounded-full">${map[status]}</span>`;
+    }
+
+    function createEventCard(event) {
+      return `
+        <div class="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700">
+          <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div class="flex-1">
+              <div class="flex items-center gap-2 mb-2">
+                <h3 class="text-lg font-semibold">${event.name}</h3>
+                ${statusBadge(event.status)}
+              </div>
+              <p class="text-gray-400 text-sm mb-1"><i class="fas fa-calendar-alt mr-1"></i> ${event.date}</p>
+              <p class="text-gray-400 text-sm mb-1"><i class="fas fa-map-marker-alt mr-1"></i> ${event.location}</p>
+              <p class="text-gray-300 text-sm mt-2">${event.desc}</p>
+            </div>
+            <div class="flex flex-col gap-2 items-end">
+              <button onclick="editEvent('${event.id}')" class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1 rounded-lg text-sm"><i class="fas fa-edit mr-1"></i>Düzenle</button>
+              <button onclick="toggleEventStatus('${event.id}')" class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1 rounded-lg text-sm"><i class="fas fa-power-off mr-1"></i>${event.status === 'active' ? 'Bitir' : 'Aktifleştir'}</button>
+              <button onclick="deleteEvent('${event.id}')" class="bg-red-500/20 hover:bg-red-500/30 text-red-400 px-3 py-1 rounded-lg text-sm"><i class="fas fa-trash-alt mr-1"></i>Sil</button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderEvents() {
+      const list = document.getElementById('eventList');
+      list.innerHTML = currentEvents.map(createEventCard).join('');
+    }
+
+    // Filter and search
+    document.getElementById('statusFilter').addEventListener('change', filterEvents);
+    document.getElementById('searchInput').addEventListener('input', filterEvents);
+
+    function filterEvents() {
+      const status = document.getElementById('statusFilter').value;
+      const search = document.getElementById('searchInput').value.toLowerCase();
+      currentEvents = demoEvents.filter(event => {
+        const matchesStatus = status === 'all' || event.status === status;
+        const matchesSearch = event.name.toLowerCase().includes(search) || event.location.toLowerCase().includes(search) || event.desc.toLowerCase().includes(search);
+        return matchesStatus && matchesSearch;
+      });
+      renderEvents();
+    }
+
+    // Event management functions
+    window.editEvent = function(id) {
+      const event = demoEvents.find(e => e.id === id);
+      if (event) {
+        document.getElementById('eventFormTitle').textContent = 'Etkinliği Düzenle';
+        document.getElementById('eventId').value = event.id;
+        document.getElementById('eventName').value = event.name;
+        document.getElementById('eventDate').value = event.date;
+        document.getElementById('eventLocation').value = event.location;
+        document.getElementById('eventDesc').value = event.desc;
+        document.getElementById('eventStatus').value = event.status;
+        showEventForm();
+      }
+    };
+
+    window.toggleEventStatus = function(id) {
+      const event = demoEvents.find(e => e.id === id);
+      if (event) {
+        if (event.status === 'active') event.status = 'ended';
+        else event.status = 'active';
+        filterEvents();
+      }
+    };
+
+    window.deleteEvent = function(id) {
+      if (confirm('Bu etkinliği silmek istediğinizden emin misiniz?')) {
+        demoEvents = demoEvents.filter(e => e.id !== id);
+        filterEvents();
+      }
+    };
+
+    // Event form modal
+    window.showEventForm = function() {
+      document.getElementById('eventFormModal').classList.remove('hidden');
+      document.getElementById('eventForm').reset();
+      document.getElementById('eventFormTitle').textContent = 'Yeni Etkinlik Ekle';
+      document.getElementById('eventId').value = '';
+    };
+    window.hideEventForm = function() {
+      document.getElementById('eventFormModal').classList.add('hidden');
+    };
+
+    // Event form submit
+    document.getElementById('eventForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const id = document.getElementById('eventId').value;
+      const name = document.getElementById('eventName').value.trim();
+      const date = document.getElementById('eventDate').value;
+      const location = document.getElementById('eventLocation').value.trim();
+      const desc = document.getElementById('eventDesc').value.trim();
+      const status = document.getElementById('eventStatus').value;
+      if (id) {
+        // Düzenle
+        const event = demoEvents.find(e => e.id === id);
+        if (event) {
+          event.name = name;
+          event.date = date;
+          event.location = location;
+          event.desc = desc;
+          event.status = status;
+        }
+      } else {
+        // Yeni ekle
+        demoEvents.push({
+          id: 'e' + (demoEvents.length + 1),
+          name,
+          date,
+          location,
+          desc,
+          status
+        });
+      }
+      hideEventForm();
+      filterEvents();
+    });
+
+    // Initial render
+    renderEvents();
+  </script>
+</body>
+</html> 

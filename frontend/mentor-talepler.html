@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mentorluk Talepleri</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+</head>
+<body class="bg-gradient-to-br from-gray-900 to-gray-800 min-h-screen text-white flex flex-col">
+  <header class="bg-gray-800 shadow-lg">
+    <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+      <h1 class="text-2xl font-bold">Mentorluk Talepleri</h1>
+      <a href="mentor/anasayfa.html" class="bg-yellow-400 hover:bg-yellow-300 text-gray-900 font-semibold px-6 py-2 rounded-lg">Panele Dön</a>
+    </div>
+  </header>
+
+  <main class="container mx-auto px-4 py-8 flex-1">
+    <p class="text-gray-300 mb-8">Öğrencilerden gelen görüşme taleplerini ve yaklaşan görüşmeleri buradan takip edebilirsiniz.</p>
+    <div id="taleplerList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <!-- Talepler JS ile eklenecek -->
+    </div>
+  </main>
+
+  <script type="module">
+    // Demo talepler
+    const talepler = [
+      {
+        ogrenciAd: "Zeynep Demir",
+        ogrenciAvatar: "https://randomuser.me/api/portraits/women/44.jpg",
+        tarih: "2024-07-10T15:00:00",
+        not: "CV hazırlama hakkında konuşmak istiyorum.",
+        durum: "Bekliyor"
+      },
+      {
+        ogrenciAd: "Ahmet Yılmaz",
+        ogrenciAvatar: "https://randomuser.me/api/portraits/men/32.jpg",
+        tarih: "2024-07-10T18:30:00",
+        not: "Yazılım sektörü stajları hakkında bilgi almak istiyorum.",
+        durum: "Onaylandı"
+      },
+      {
+        ogrenciAd: "Elif Kaya",
+        ogrenciAvatar: "https://randomuser.me/api/portraits/women/65.jpg",
+        tarih: "2024-07-11T10:00:00",
+        not: "Motivasyonum düşük, tavsiye almak istiyorum.",
+        durum: "Bekliyor"
+      },
+      {
+        ogrenciAd: "Mehmet Can",
+        ogrenciAvatar: "https://randomuser.me/api/portraits/men/45.jpg",
+        tarih: "2024-07-12T14:00:00",
+        not: "Proje yönetimi hakkında konuşmak istiyorum.",
+        durum: "Tamamlandı"
+      }
+    ];
+
+    function kalanSureHesapla(tarihStr) {
+      const simdi = new Date();
+      const gorusme = new Date(tarihStr);
+      const fark = gorusme - simdi;
+      if (fark <= 0) return "Görüşme zamanı geçti";
+      const saat = Math.floor(fark / (1000 * 60 * 60));
+      const dakika = Math.floor((fark % (1000 * 60 * 60)) / (1000 * 60));
+      return `${saat} saat ${dakika} dakika kaldı`;
+    }
+
+    const taleplerList = document.getElementById('taleplerList');
+    talepler.forEach(talep => {
+      const card = document.createElement('div');
+      card.className = "bg-gray-900 rounded-xl shadow-lg p-6 flex flex-col gap-3";
+      card.innerHTML = `
+        <div class="flex items-center gap-3 mb-2">
+          <img src="${talep.ogrenciAvatar}" alt="${talep.ogrenciAd}" class="w-14 h-14 rounded-full object-cover border-4 border-yellow-400" />
+          <div>
+            <div class="font-bold text-lg text-yellow-400">${talep.ogrenciAd}</div>
+            <div class="text-gray-400 text-sm">${new Date(talep.tarih).toLocaleString('tr-TR', { dateStyle: 'medium', timeStyle: 'short' })}</div>
+          </div>
+        </div>
+        <div class="text-gray-300 text-sm mb-2">${talep.not}</div>
+        <div class="flex items-center gap-2 mb-2">
+          <span class="bg-purple-600/20 text-purple-300 px-3 py-1 rounded text-xs">${talep.durum}</span>
+          <span class="bg-blue-600/20 text-blue-300 px-3 py-1 rounded text-xs">${kalanSureHesapla(talep.tarih)}</span>
+        </div>
+      `;
+      taleplerList.appendChild(card);
+    });
+  </script>
+</body>
+</html> 

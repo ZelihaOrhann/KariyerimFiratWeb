@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>İlan Yönetimi - KariyerimFırat</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+</head>
+<body class="bg-gradient-to-br from-gray-900 to-gray-800 min-h-screen text-white">
+  <!-- Header -->
+  <header class="bg-gray-800/50 backdrop-blur-sm border-b border-gray-700 fixed w-full top-0 z-50">
+    <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+      <h1 class="text-xl font-bold">İlan Yönetimi</h1>
+      <button onclick="window.location.href='anasayfa.html'" class="text-yellow-400 hover:text-yellow-300">
+        <i class="fas fa-arrow-left mr-2"></i>Panele Dön
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="container mx-auto px-4 pt-24 pb-20">
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+      <div class="bg-gray-800/50 backdrop-blur-sm rounded-xl p-4 border border-gray-700">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-gray-400 text-sm">Aktif İlanlar</p>
+            <h3 class="text-2xl font-bold" id="activeJobsCount">0</h3>
+          </div>
+          <div class="w-12 h-12 bg-green-500/20 rounded-lg flex items-center justify-center">
+            <i class="fas fa-briefcase text-green-400 text-xl"></i>
+          </div>
+        </div>
+      </div>
+      <div class="bg-gray-800/50 backdrop-blur-sm rounded-xl p-4 border border-gray-700">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-gray-400 text-sm">Toplam Başvuru</p>
+            <h3 class="text-2xl font-bold" id="totalApplicationsCount">0</h3>
+          </div>
+          <div class="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center">
+            <i class="fas fa-users text-blue-400 text-xl"></i>
+          </div>
+        </div>
+      </div>
+      <div class="bg-gray-800/50 backdrop-blur-sm rounded-xl p-4 border border-gray-700">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-gray-400 text-sm">Görüntülenme</p>
+            <h3 class="text-2xl font-bold" id="totalViewsCount">0</h3>
+          </div>
+          <div class="w-12 h-12 bg-purple-500/20 rounded-lg flex items-center justify-center">
+            <i class="fas fa-eye text-purple-400 text-xl"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions Bar -->
+    <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
+      <div class="flex gap-2">
+        <button onclick="window.location.href='ilan-ekle.html'" class="bg-yellow-400 hover:bg-yellow-300 text-gray-900 font-semibold px-4 py-2 rounded-lg flex items-center">
+          <i class="fas fa-plus mr-2"></i>Yeni İlan Ekle
+        </button>
+        <button onclick="refreshJobList()" class="bg-gray-700 hover:bg-gray-600 text-white font-semibold px-4 py-2 rounded-lg flex items-center">
+          <i class="fas fa-sync-alt mr-2"></i>Yenile
+        </button>
+      </div>
+      <div class="flex gap-2">
+        <select id="statusFilter" class="bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 focus:outline-none focus:border-yellow-400">
+          <option value="all">Tüm İlanlar</option>
+          <option value="active">Aktif</option>
+          <option value="draft">Taslak</option>
+          <option value="closed">Kapalı</option>
+        </select>
+        <input type="text" id="searchInput" placeholder="İlan ara..." class="bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 focus:outline-none focus:border-yellow-400">
+      </div>
+    </div>
+
+    <!-- Job List -->
+    <div id="jobList" class="space-y-4">
+      <!-- Job cards will be dynamically added here -->
+    </div>
+  </main>
+
+  <!-- Footer Navigation -->
+  <nav class="fixed bottom-0 left-0 right-0 bg-gray-800/50 backdrop-blur-sm border-t border-gray-700">
+    <div class="container mx-auto px-4">
+      <div class="flex justify-around items-center h-16">
+        <a href="anasayfa.html" class="text-gray-400 hover:text-white">
+          <i class="fas fa-home text-xl"></i>
+        </a>
+        <a href="ilanlar.html" class="text-yellow-400">
+          <i class="fas fa-briefcase text-xl"></i>
+        </a>
+        <a href="basvurular.html" class="text-gray-400 hover:text-white">
+          <i class="fas fa-users text-xl"></i>
+        </a>
+        <a href="ayarlar.html" class="text-gray-400 hover:text-white">
+          <i class="fas fa-cog text-xl"></i>
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getFirestore, collection, query, where, getDocs, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { firebaseConfig } from '../firebase-config.js';
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // Demo data for initial development
+    const demoJobs = [
+      {
+        id: '1',
+        title: 'Senior Frontend Developer',
+        company: 'Tech Solutions A.Ş.',
+        location: 'İstanbul',
+        type: 'Tam Zamanlı',
+        status: 'active',
+        applications: 15,
+        views: 245,
+        createdAt: '2024-03-15',
+        description: 'React ve Vue.js deneyimi olan, modern web teknolojilerine hakim senior frontend developer arıyoruz.'
+      },
+      {
+        id: '2',
+        title: 'Backend Developer',
+        company: 'Tech Solutions A.Ş.',
+        location: 'Ankara',
+        type: 'Tam Zamanlı',
+        status: 'active',
+        applications: 8,
+        views: 156,
+        createdAt: '2024-03-10',
+        description: 'Node.js ve Python deneyimi olan, mikroservis mimarisi konusunda tecrübeli backend developer arıyoruz.'
+      },
+      {
+        id: '3',
+        title: 'UI/UX Designer',
+        company: 'Tech Solutions A.Ş.',
+        location: 'İzmir',
+        type: 'Yarı Zamanlı',
+        status: 'draft',
+        applications: 0,
+        views: 0,
+        createdAt: '2024-03-20',
+        description: 'Figma ve Adobe XD kullanabilen, modern UI/UX tasarımları yapabilen tasarımcı arıyoruz.'
+      }
+    ];
+
+    let currentJobs = [...demoJobs];
+
+    function updateStats() {
+      const activeJobs = currentJobs.filter(job => job.status === 'active').length;
+      const totalApplications = currentJobs.reduce((sum, job) => sum + job.applications, 0);
+      const totalViews = currentJobs.reduce((sum, job) => sum + job.views, 0);
+
+      document.getElementById('activeJobsCount').textContent = activeJobs;
+      document.getElementById('totalApplicationsCount').textContent = totalApplications;
+      document.getElementById('totalViewsCount').textContent = totalViews;
+    }
+
+    function createJobCard(job) {
+      const statusColors = {
+        active: 'bg-green-500/20 text-green-400',
+        draft: 'bg-yellow-500/20 text-yellow-400',
+        closed: 'bg-red-500/20 text-red-400'
+      };
+
+      const statusText = {
+        active: 'Aktif',
+        draft: 'Taslak',
+        closed: 'Kapalı'
+      };
+
+      return `
+        <div class="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700">
+          <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div class="flex-1">
+              <div class="flex items-center gap-2 mb-2">
+                <h3 class="text-lg font-semibold">${job.title}</h3>
+                <span class="${statusColors[job.status]} text-xs px-2 py-1 rounded-full">${statusText[job.status]}</span>
+              </div>
+              <p class="text-gray-400 text-sm mb-2">${job.company} • ${job.location} • ${job.type}</p>
+              <p class="text-gray-300 text-sm line-clamp-2">${job.description}</p>
+            </div>
+            <div class="flex flex-col items-end gap-2">
+              <div class="flex items-center gap-4 text-sm text-gray-400">
+                <span><i class="fas fa-users mr-1"></i>${job.applications} Başvuru</span>
+                <span><i class="fas fa-eye mr-1"></i>${job.views} Görüntülenme</span>
+              </div>
+              <div class="flex gap-2">
+                <button onclick="editJob('${job.id}')" class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1 rounded-lg text-sm">
+                  <i class="fas fa-edit mr-1"></i>Düzenle
+                </button>
+                <button onclick="toggleJobStatus('${job.id}')" class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1 rounded-lg text-sm">
+                  <i class="fas fa-power-off mr-1"></i>${job.status === 'active' ? 'Kapat' : 'Aktifleştir'}
+                </button>
+                <button onclick="deleteJob('${job.id}')" class="bg-red-500/20 hover:bg-red-500/30 text-red-400 px-3 py-1 rounded-lg text-sm">
+                  <i class="fas fa-trash-alt mr-1"></i>Sil
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function refreshJobList() {
+      const jobList = document.getElementById('jobList');
+      jobList.innerHTML = currentJobs.map(job => createJobCard(job)).join('');
+      updateStats();
+    }
+
+    // Filter and search functionality
+    document.getElementById('statusFilter').addEventListener('change', filterJobs);
+    document.getElementById('searchInput').addEventListener('input', filterJobs);
+
+    function filterJobs() {
+      const statusFilter = document.getElementById('statusFilter').value;
+      const searchQuery = document.getElementById('searchInput').value.toLowerCase();
+
+      currentJobs = demoJobs.filter(job => {
+        const matchesStatus = statusFilter === 'all' || job.status === statusFilter;
+        const matchesSearch = job.title.toLowerCase().includes(searchQuery) ||
+                            job.company.toLowerCase().includes(searchQuery) ||
+                            job.description.toLowerCase().includes(searchQuery);
+        return matchesStatus && matchesSearch;
+      });
+
+      refreshJobList();
+    }
+
+    // Job management functions
+    window.editJob = function(jobId) {
+      window.location.href = `ilan-duzenle.html?id=${jobId}`;
+    };
+
+    window.toggleJobStatus = function(jobId) {
+      const job = currentJobs.find(j => j.id === jobId);
+      if (job) {
+        job.status = job.status === 'active' ? 'closed' : 'active';
+        refreshJobList();
+      }
+    };
+
+    window.deleteJob = function(jobId) {
+      if (confirm('Bu ilanı silmek istediğinizden emin misiniz?')) {
+        currentJobs = currentJobs.filter(job => job.id !== jobId);
+        refreshJobList();
+      }
+    };
+
+    // Initialize
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        refreshJobList();
+      } else {
+        window.location.href = "../giris.html";
+      }
+    });
+  </script>
+</body>
+</html> 

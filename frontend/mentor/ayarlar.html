@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mentor Hesap Ayarları</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-gray-900 to-gray-800 min-h-screen text-white flex flex-col items-center justify-center py-12">
+  <div class="bg-gray-900 rounded-2xl shadow-xl p-8 w-full max-w-lg flex flex-col items-center">
+    <h1 class="text-2xl font-bold mb-2">Hesap Ayarları</h1>
+    <p class="text-gray-400 mb-6">Kişisel bilgilerinizi ve iletişim ayarlarınızı güncelleyebilirsiniz.</p>
+    <form id="mentorSettingsForm" class="w-full flex flex-col gap-6">
+      <div class="flex gap-4">
+        <div class="flex-1">
+          <label class="block text-gray-300 mb-1" for="ad">Ad</label>
+          <input type="text" id="ad" name="ad" class="w-full px-4 py-2 rounded border border-gray-700 bg-gray-800 text-white focus:outline-none focus:border-yellow-400" required />
+        </div>
+        <div class="flex-1">
+          <label class="block text-gray-300 mb-1" for="soyad">Soyad</label>
+          <input type="text" id="soyad" name="soyad" class="w-full px-4 py-2 rounded border border-gray-700 bg-gray-800 text-white focus:outline-none focus:border-yellow-400" required />
+        </div>
+      </div>
+      <div>
+        <label class="block text-gray-300 mb-1" for="email">E-posta</label>
+        <input type="email" id="email" name="email" class="w-full px-4 py-2 rounded border border-gray-700 bg-gray-800 text-white" readonly />
+      </div>
+      <div>
+        <label class="block text-gray-300 mb-1" for="telefon">Telefon</label>
+        <input type="text" id="telefon" name="telefon" class="w-full px-4 py-2 rounded border border-gray-700 bg-gray-800 text-white focus:outline-none focus:border-yellow-400" />
+      </div>
+      <button type="submit" class="bg-yellow-400 hover:bg-yellow-300 text-gray-900 font-semibold px-6 py-2 rounded-lg">Kaydet</button>
+    </form>
+    <div class="w-full border-t border-gray-700 my-8"></div>
+    <h2 class="text-lg font-bold mb-2">Şifreyi Değiştir</h2>
+    <form id="changePasswordForm" class="w-full flex flex-col gap-4">
+      <input type="password" id="currentPassword" placeholder="Mevcut Şifre" class="px-4 py-2 rounded border border-gray-700 bg-gray-800 text-white focus:outline-none focus:border-yellow-400" required />
+      <input type="password" id="newPassword" placeholder="Yeni Şifre" class="px-4 py-2 rounded border border-gray-700 bg-gray-800 text-white focus:outline-none focus:border-yellow-400" required />
+      <input type="password" id="newPasswordRepeat" placeholder="Yeni Şifre (Tekrar)" class="px-4 py-2 rounded border border-gray-700 bg-gray-800 text-white focus:outline-none focus:border-yellow-400" required />
+      <button type="submit" class="bg-yellow-400 hover:bg-yellow-300 text-gray-900 font-semibold px-6 py-2 rounded-lg">Şifreyi Değiştir</button>
+    </form>
+    <a href="anasayfa.html" class="mt-8 text-yellow-400 hover:underline">Panele Dön</a>
+    <div id="statusMsg" class="mt-4 text-center"></div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, updatePassword, EmailAuthProvider, reauthenticateWithCredential } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { firebaseConfig } from '../firebase-config.js';
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const statusMsg = document.getElementById('statusMsg');
+
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        try {
+          const userDoc = await getDoc(doc(db, "users", user.uid));
+          if (userDoc.exists()) {
+            const data = userDoc.data();
+            document.getElementById('ad').value = data.ad || '';
+            document.getElementById('soyad').value = data.soyad || '';
+            document.getElementById('email').value = data.email || user.email || '';
+            document.getElementById('telefon').value = data.telefon || '';
+          } else {
+            document.getElementById('email').value = user.email || '';
+          }
+        } catch (error) {
+          statusMsg.textContent = 'Kullanıcı bilgileri alınamadı!';
+          statusMsg.className = 'text-red-400 mt-4';
+        }
+      } else {
+        window.location.href = "../giris.html";
+      }
+    });
+
+    document.getElementById('mentorSettingsForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const user = auth.currentUser;
+      if (!user) return;
+      const ad = document.getElementById('ad').value.trim();
+      const soyad = document.getElementById('soyad').value.trim();
+      const telefon = document.getElementById('telefon').value.trim();
+      try {
+        await updateDoc(doc(db, "users", user.uid), {
+          ad,
+          soyad,
+          telefon
+        });
+        statusMsg.textContent = 'Bilgileriniz güncellendi!';
+        statusMsg.className = 'text-green-400 mt-4';
+      } catch (error) {
+        statusMsg.textContent = 'Güncelleme başarısız: ' + error.message;
+        statusMsg.className = 'text-red-400 mt-4';
+      }
+    });
+
+    document.getElementById('changePasswordForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const user = auth.currentUser;
+      if (!user) return;
+      const currentPassword = document.getElementById('currentPassword').value;
+      const newPassword = document.getElementById('newPassword').value;
+      const newPasswordRepeat = document.getElementById('newPasswordRepeat').value;
+      if (newPassword !== newPasswordRepeat) {
+        statusMsg.textContent = 'Yeni şifreler eşleşmiyor!';
+        statusMsg.className = 'text-red-400 mt-4';
+        return;
+      }
+      try {
+        const credential = EmailAuthProvider.credential(user.email, currentPassword);
+        await reauthenticateWithCredential(user, credential);
+        await updatePassword(user, newPassword);
+        statusMsg.textContent = 'Şifreniz başarıyla değiştirildi!';
+        statusMsg.className = 'text-green-400 mt-4';
+      } catch (error) {
+        statusMsg.textContent = 'Şifre değiştirilemedi: ' + error.message;
+        statusMsg.className = 'text-red-400 mt-4';
+      }
+    });
+  </script>
+</body>
+</html> 

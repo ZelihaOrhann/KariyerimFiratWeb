@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Başvuruları Yönet - KariyerimFırat</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+</head>
+<body class="bg-gradient-to-br from-gray-900 to-gray-800 min-h-screen text-white">
+  <!-- Header -->
+  <header class="bg-gray-800/50 backdrop-blur-sm border-b border-gray-700 fixed w-full top-0 z-50">
+    <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+      <h1 class="text-xl font-bold">Başvuruları Yönet</h1>
+      <button onclick="window.location.href='anasayfa.html'" class="text-yellow-400 hover:text-yellow-300">
+        <i class="fas fa-arrow-left mr-2"></i>Panele Dön
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="container mx-auto px-4 pt-24 pb-20">
+    <!-- Filter & Search -->
+    <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
+      <div class="flex gap-2">
+        <select id="statusFilter" class="bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 focus:outline-none focus:border-yellow-400">
+          <option value="all">Tüm Başvurular</option>
+          <option value="pending">Beklemede</option>
+          <option value="approved">Onaylanan</option>
+          <option value="rejected">Reddedilen</option>
+        </select>
+      </div>
+      <input type="text" id="searchInput" placeholder="Başvuru ara..." class="bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 focus:outline-none focus:border-yellow-400 w-full md:w-64">
+    </div>
+
+    <!-- Applications List -->
+    <div id="applicationsList" class="space-y-4">
+      <!-- Başvuru kartları buraya eklenecek -->
+    </div>
+  </main>
+
+  <!-- Footer Navigation -->
+  <nav class="fixed bottom-0 left-0 right-0 bg-gray-800/50 backdrop-blur-sm border-t border-gray-700">
+    <div class="container mx-auto px-4">
+      <div class="flex justify-around items-center h-16">
+        <a href="anasayfa.html" class="text-gray-400 hover:text-white">
+          <i class="fas fa-home text-xl"></i>
+        </a>
+        <a href="ilanlar.html" class="text-gray-400 hover:text-white">
+          <i class="fas fa-briefcase text-xl"></i>
+        </a>
+        <a href="basvurular.html" class="text-yellow-400">
+          <i class="fas fa-users text-xl"></i>
+        </a>
+        <a href="ayarlar.html" class="text-gray-400 hover:text-white">
+          <i class="fas fa-cog text-xl"></i>
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <script type="module">
+    // Demo başvuru verileri
+    const demoApplications = [
+      {
+        id: 'a1',
+        name: 'Ahmet Yılmaz',
+        email: 'ahmet.yilmaz@example.com',
+        jobTitle: 'Senior Frontend Developer',
+        jobId: '1',
+        date: '2024-04-10',
+        status: 'pending',
+        cvUrl: '#',
+        note: 'React konusunda deneyimliyim.'
+      },
+      {
+        id: 'a2',
+        name: 'Zeynep Demir',
+        email: 'zeynep.demir@example.com',
+        jobTitle: 'Backend Developer',
+        jobId: '2',
+        date: '2024-04-09',
+        status: 'approved',
+        cvUrl: '#',
+        note: 'Node.js projelerinde çalıştım.'
+      },
+      {
+        id: 'a3',
+        name: 'Mehmet Kaya',
+        email: 'mehmet.kaya@example.com',
+        jobTitle: 'UI/UX Designer',
+        jobId: '3',
+        date: '2024-04-08',
+        status: 'rejected',
+        cvUrl: '#',
+        note: 'Figma ve Adobe XD kullanıyorum.'
+      },
+      {
+        id: 'a4',
+        name: 'Elif Şahin',
+        email: 'elif.sahin@example.com',
+        jobTitle: 'Senior Frontend Developer',
+        jobId: '1',
+        date: '2024-04-07',
+        status: 'pending',
+        cvUrl: '#',
+        note: 'Vue.js ile SPA geliştirdim.'
+      }
+    ];
+
+    let filteredApplications = [...demoApplications];
+
+    function statusBadge(status) {
+      const map = {
+        pending: 'Beklemede',
+        approved: 'Onaylandı',
+        rejected: 'Reddedildi'
+      };
+      const color = {
+        pending: 'bg-yellow-500/20 text-yellow-400',
+        approved: 'bg-green-500/20 text-green-400',
+        rejected: 'bg-red-500/20 text-red-400'
+      };
+      return `<span class="${color[status]} text-xs px-2 py-1 rounded-full">${map[status]}</span>`;
+    }
+
+    function createApplicationCard(app) {
+      return `
+        <div class="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700">
+          <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div class="flex-1">
+              <div class="flex items-center gap-2 mb-2">
+                <h3 class="text-lg font-semibold">${app.name}</h3>
+                ${statusBadge(app.status)}
+              </div>
+              <p class="text-gray-400 text-sm mb-1"><i class="fas fa-envelope mr-1"></i> ${app.email}</p>
+              <p class="text-gray-400 text-sm mb-1"><i class="fas fa-briefcase mr-1"></i> ${app.jobTitle}</p>
+              <p class="text-gray-400 text-sm mb-1"><i class="fas fa-calendar-alt mr-1"></i> ${app.date}</p>
+              <p class="text-gray-400 text-sm mb-1"><i class="fas fa-file-alt mr-1"></i> <a href="${app.cvUrl}" class="underline text-yellow-400" target="_blank">CV'yi Görüntüle</a></p>
+              <p class="text-gray-300 text-sm mt-2">Not: ${app.note}</p>
+            </div>
+            <div class="flex flex-col gap-2 items-end">
+              <button onclick="approveApplication('${app.id}')" class="bg-green-500/20 hover:bg-green-500/40 text-green-400 px-3 py-1 rounded-lg text-sm" ${app.status==='approved'?'disabled':''}><i class="fas fa-check mr-1"></i>Onayla</button>
+              <button onclick="rejectApplication('${app.id}')" class="bg-red-500/20 hover:bg-red-500/40 text-red-400 px-3 py-1 rounded-lg text-sm" ${app.status==='rejected'?'disabled':''}><i class="fas fa-times mr-1"></i>Reddet</button>
+              <button onclick="showDetails('${app.id}')" class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1 rounded-lg text-sm"><i class="fas fa-eye mr-1"></i>Detay</button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderApplications() {
+      const list = document.getElementById('applicationsList');
+      list.innerHTML = filteredApplications.map(createApplicationCard).join('');
+    }
+
+    // Filter and search
+    document.getElementById('statusFilter').addEventListener('change', filterApplications);
+    document.getElementById('searchInput').addEventListener('input', filterApplications);
+
+    function filterApplications() {
+      const status = document.getElementById('statusFilter').value;
+      const search = document.getElementById('searchInput').value.toLowerCase();
+      filteredApplications = demoApplications.filter(app => {
+        const matchesStatus = status === 'all' || app.status === status;
+        const matchesSearch = app.name.toLowerCase().includes(search) || app.email.toLowerCase().includes(search) || app.jobTitle.toLowerCase().includes(search);
+        return matchesStatus && matchesSearch;
+      });
+      renderApplications();
+    }
+
+    // Action functions
+    window.approveApplication = function(id) {
+      const app = demoApplications.find(a => a.id === id);
+      if (app) app.status = 'approved';
+      filterApplications();
+    };
+    window.rejectApplication = function(id) {
+      const app = demoApplications.find(a => a.id === id);
+      if (app) app.status = 'rejected';
+      filterApplications();
+    };
+    window.showDetails = function(id) {
+      const app = demoApplications.find(a => a.id === id);
+      if (app) alert(`Başvuran: ${app.name}\nE-posta: ${app.email}\nİlan: ${app.jobTitle}\nTarih: ${app.date}\nNot: ${app.note}`);
+    };
+
+    // Initial render
+    renderApplications();
+  </script>
+</body>
+</html> 

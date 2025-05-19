@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>İstatistikler - KariyerimFırat</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gradient-to-br from-gray-900 to-gray-800 min-h-screen text-white">
+  <!-- Header -->
+  <header class="bg-gray-800/50 backdrop-blur-sm border-b border-gray-700 fixed w-full top-0 z-50">
+    <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+      <h1 class="text-xl font-bold">İstatistikler</h1>
+      <button onclick="window.location.href='anasayfa.html'" class="text-yellow-400 hover:text-yellow-300">
+        <i class="fas fa-arrow-left mr-2"></i>Panele Dön
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="container mx-auto px-4 pt-24 pb-20">
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+      <div class="bg-gray-800/50 backdrop-blur-sm rounded-xl p-4 border border-gray-700 flex flex-col items-center">
+        <div class="text-gray-400 text-sm">Toplam İlan</div>
+        <div class="text-2xl font-bold" id="totalJobs">0</div>
+      </div>
+      <div class="bg-gray-800/50 backdrop-blur-sm rounded-xl p-4 border border-gray-700 flex flex-col items-center">
+        <div class="text-gray-400 text-sm">Aktif İlan</div>
+        <div class="text-2xl font-bold" id="activeJobs">0</div>
+      </div>
+      <div class="bg-gray-800/50 backdrop-blur-sm rounded-xl p-4 border border-gray-700 flex flex-col items-center">
+        <div class="text-gray-400 text-sm">Toplam Başvuru</div>
+        <div class="text-2xl font-bold" id="totalApplications">0</div>
+      </div>
+      <div class="bg-gray-800/50 backdrop-blur-sm rounded-xl p-4 border border-gray-700 flex flex-col items-center">
+        <div class="text-gray-400 text-sm">Toplam Görüntülenme</div>
+        <div class="text-2xl font-bold" id="totalViews">0</div>
+      </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+      <div class="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700">
+        <h2 class="text-lg font-bold mb-4">Son 6 Ayda İlan ve Başvuru Trendleri</h2>
+        <canvas id="trendChart" height="180"></canvas>
+      </div>
+      <div class="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700">
+        <h2 class="text-lg font-bold mb-4">En Çok Başvuru Alan İlanlar</h2>
+        <ul id="topJobs" class="space-y-3"></ul>
+      </div>
+    </div>
+
+    <!-- Recent Applications -->
+    <div class="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700">
+      <h2 class="text-lg font-bold mb-4">Son Başvurular</h2>
+      <ul id="recentApplications" class="space-y-3"></ul>
+    </div>
+  </main>
+
+  <!-- Footer Navigation -->
+  <nav class="fixed bottom-0 left-0 right-0 bg-gray-800/50 backdrop-blur-sm border-t border-gray-700">
+    <div class="container mx-auto px-4">
+      <div class="flex justify-around items-center h-16">
+        <a href="anasayfa.html" class="text-gray-400 hover:text-white">
+          <i class="fas fa-home text-xl"></i>
+        </a>
+        <a href="ilanlar.html" class="text-gray-400 hover:text-white">
+          <i class="fas fa-briefcase text-xl"></i>
+        </a>
+        <a href="basvurular.html" class="text-gray-400 hover:text-white">
+          <i class="fas fa-users text-xl"></i>
+        </a>
+        <a href="etkinlikler.html" class="text-gray-400 hover:text-white">
+          <i class="fas fa-calendar-alt text-xl"></i>
+        </a>
+        <a href="istatistikler.html" class="text-yellow-400">
+          <i class="fas fa-chart-bar text-xl"></i>
+        </a>
+        <a href="ayarlar.html" class="text-gray-400 hover:text-white">
+          <i class="fas fa-cog text-xl"></i>
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <script type="module">
+    // Demo ilan ve başvuru verileri
+    const jobs = [
+      { id: '1', title: 'Senior Frontend Developer', status: 'active', applications: 15, views: 245 },
+      { id: '2', title: 'Backend Developer', status: 'active', applications: 8, views: 156 },
+      { id: '3', title: 'UI/UX Designer', status: 'draft', applications: 0, views: 0 },
+      { id: '4', title: 'Stajyer Yazılımcı', status: 'ended', applications: 5, views: 80 }
+    ];
+    const applications = [
+      { name: 'Ahmet Yılmaz', job: 'Senior Frontend Developer', date: '2024-04-10' },
+      { name: 'Zeynep Demir', job: 'Backend Developer', date: '2024-04-09' },
+      { name: 'Mehmet Kaya', job: 'UI/UX Designer', date: '2024-04-08' },
+      { name: 'Elif Şahin', job: 'Senior Frontend Developer', date: '2024-04-07' },
+      { name: 'Ali Vural', job: 'Stajyer Yazılımcı', date: '2024-04-06' }
+    ];
+    // Son 6 ay için demo trend verisi
+    const months = ['Kas', 'Ara', 'Oca', 'Şub', 'Mar', 'Nis'];
+    const jobTrends = [2, 3, 2, 4, 1, 2];
+    const appTrends = [5, 8, 6, 10, 7, 9];
+
+    // Stats
+    document.getElementById('totalJobs').textContent = jobs.length;
+    document.getElementById('activeJobs').textContent = jobs.filter(j => j.status === 'active').length;
+    document.getElementById('totalApplications').textContent = jobs.reduce((sum, j) => sum + j.applications, 0);
+    document.getElementById('totalViews').textContent = jobs.reduce((sum, j) => sum + j.views, 0);
+
+    // Top jobs
+    const topJobs = jobs.slice().sort((a, b) => b.applications - a.applications).slice(0, 3);
+    document.getElementById('topJobs').innerHTML = topJobs.map(j => `
+      <li class="flex justify-between items-center bg-gray-900 rounded-lg px-4 py-2">
+        <span>${j.title}</span>
+        <span class="text-yellow-400 font-bold">${j.applications} başvuru</span>
+      </li>
+    `).join('');
+
+    // Recent applications
+    document.getElementById('recentApplications').innerHTML = applications.map(a => `
+      <li class="flex justify-between items-center bg-gray-900 rounded-lg px-4 py-2">
+        <span><span class="text-yellow-400 font-semibold mr-2">${a.name}</span>→ ${a.job}</span>
+        <span class="text-gray-400 text-sm">${a.date}</span>
+      </li>
+    `).join('');
+
+    // Chart.js trend chart
+    const ctx = document.getElementById('trendChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: months,
+        datasets: [
+          {
+            label: 'İlanlar',
+            data: jobTrends,
+            borderColor: '#facc15',
+            backgroundColor: 'rgba(250,204,21,0.1)',
+            tension: 0.4,
+            fill: true
+          },
+          {
+            label: 'Başvurular',
+            data: appTrends,
+            borderColor: '#38bdf8',
+            backgroundColor: 'rgba(56,189,248,0.1)',
+            tension: 0.4,
+            fill: true
+          }
+        ]
+      },
+      options: {
+        plugins: {
+          legend: { labels: { color: '#fff' } }
+        },
+        scales: {
+          x: { ticks: { color: '#fff' }, grid: { color: '#444' } },
+          y: { ticks: { color: '#fff' }, grid: { color: '#444' } }
+        }
+      }
+    });
+  </script>
+</body>
+</html> 

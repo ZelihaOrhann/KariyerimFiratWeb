@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mentor Takvimi</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-gray-900 to-gray-800 min-h-screen text-white flex flex-col">
+  <header class="bg-gray-800 shadow-lg">
+    <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+      <h1 class="text-2xl font-bold">Mentor Takvimi</h1>
+      <a href="mentor/anasayfa.html" class="bg-yellow-400 hover:bg-yellow-300 text-gray-900 font-semibold px-6 py-2 rounded-lg">Panele Dön</a>
+    </div>
+  </header>
+
+  <main class="container mx-auto px-4 py-8 flex-1">
+    <p class="text-gray-300 mb-8">Mentorluk görüşmelerinizi takvim üzerinde görüntüleyin.</p>
+    <div class="bg-gray-900 rounded-xl shadow-lg p-6">
+      <div class="flex justify-between items-center mb-4">
+        <button id="prevWeek" class="bg-gray-800 hover:bg-gray-700 px-3 py-1 rounded">← Önceki Hafta</button>
+        <div id="weekLabel" class="font-bold text-lg text-yellow-400"></div>
+        <button id="nextWeek" class="bg-gray-800 hover:bg-gray-700 px-3 py-1 rounded">Sonraki Hafta →</button>
+      </div>
+      <div id="takvimGrid" class="grid grid-cols-7 gap-4"></div>
+    </div>
+  </main>
+
+  <div id="tooltip" class="hidden fixed z-50 bg-gray-800 text-white rounded-lg shadow-lg px-4 py-2 text-sm pointer-events-none"></div>
+
+  <script>
+    // Demo random görüşmeler
+    const ogrenciler = [
+      { ad: "Zeynep Demir", avatar: "https://randomuser.me/api/portraits/women/44.jpg" },
+      { ad: "Ahmet Yılmaz", avatar: "https://randomuser.me/api/portraits/men/32.jpg" },
+      { ad: "Elif Kaya", avatar: "https://randomuser.me/api/portraits/women/65.jpg" },
+      { ad: "Mehmet Can", avatar: "https://randomuser.me/api/portraits/men/45.jpg" }
+    ];
+    const notlar = [
+      "CV hazırlama hakkında konuşmak istiyorum.",
+      "Yazılım sektörü stajları hakkında bilgi almak istiyorum.",
+      "Motivasyonum düşük, tavsiye almak istiyorum.",
+      "Proje yönetimi hakkında konuşmak istiyorum."
+    ];
+    // 7 gün, her güne random görüşme ekle
+    function randomGorusmeler(haftaBasi) {
+      const gorusmeler = [];
+      for (let i = 0; i < 7; i++) {
+        if (Math.random() > 0.5) { // %50 ihtimalle o gün görüşme var
+          const ogr = ogrenciler[Math.floor(Math.random() * ogrenciler.length)];
+          const not = notlar[Math.floor(Math.random() * notlar.length)];
+          const saat = 9 + Math.floor(Math.random() * 8); // 09:00-16:00 arası
+          gorusmeler.push({
+            tarih: new Date(haftaBasi.getFullYear(), haftaBasi.getMonth(), haftaBasi.getDate() + i, saat, 0, 0),
+            ogrenci: ogr.ad,
+            avatar: ogr.avatar,
+            not
+          });
+        }
+      }
+      return gorusmeler;
+    }
+
+    // Takvim haftası hesaplama
+    let currentMonday = (() => {
+      const d = new Date();
+      const day = d.getDay() || 7;
+      if (day !== 1) d.setHours(-24 * (day - 1));
+      d.setHours(0,0,0,0);
+      return d;
+    })();
+
+    function getWeekLabel(monday) {
+      const end = new Date(monday);
+      end.setDate(end.getDate() + 6);
+      return `${monday.toLocaleDateString('tr-TR')} - ${end.toLocaleDateString('tr-TR')}`;
+    }
+
+    function renderTakvim() {
+      document.getElementById('weekLabel').textContent = getWeekLabel(currentMonday);
+      const grid = document.getElementById('takvimGrid');
+      grid.innerHTML = '';
+      const gunler = ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'];
+      const gorusmeler = randomGorusmeler(currentMonday);
+      for (let i = 0; i < 7; i++) {
+        const gunTarih = new Date(currentMonday);
+        gunTarih.setDate(gunTarih.getDate() + i);
+        const gorusme = gorusmeler.find(g => g.tarih.toDateString() === gunTarih.toDateString());
+        const cell = document.createElement('div');
+        cell.className = "bg-gray-800 rounded-lg p-4 flex flex-col items-center min-h-[120px] relative group";
+        cell.innerHTML = `<div class='font-bold text-yellow-400 mb-2'>${gunler[i]}</div><div class='text-gray-400 text-xs mb-2'>${gunTarih.toLocaleDateString('tr-TR')}</div>`;
+        if (gorusme) {
+          cell.innerHTML += `
+            <img src="${gorusme.avatar}" class="w-10 h-10 rounded-full border-2 border-yellow-400 mb-1" />
+            <div class="text-sm text-white font-semibold mb-1">${gorusme.ogrenci}</div>
+            <div class="text-xs text-purple-300 mb-1">${gorusme.tarih.getHours()}:00</div>
+            <div class="text-xs text-gray-300 truncate max-w-[100px]">${gorusme.not}</div>
+          `;
+          cell.addEventListener('mouseenter', (e) => showTooltip(e, gorusme));
+          cell.addEventListener('mouseleave', hideTooltip);
+        } else {
+          cell.innerHTML += `<div class='text-gray-600 text-xs mt-6'>Görüşme yok</div>`;
+        }
+        grid.appendChild(cell);
+      }
+    }
+
+    function showTooltip(e, gorusme) {
+      const tooltip = document.getElementById('tooltip');
+      tooltip.innerHTML = `<div class='font-bold text-yellow-400 mb-1'>${gorusme.ogrenci}</div><div class='text-xs text-gray-300 mb-1'>${gorusme.tarih.toLocaleString('tr-TR', { dateStyle: 'medium', timeStyle: 'short' })}</div><div class='text-xs text-purple-300 mb-1'>${gorusme.not}</div>`;
+      tooltip.style.left = (e.clientX + 20) + 'px';
+      tooltip.style.top = (e.clientY - 10) + 'px';
+      tooltip.classList.remove('hidden');
+    }
+    function hideTooltip() {
+      document.getElementById('tooltip').classList.add('hidden');
+    }
+
+    document.getElementById('prevWeek').onclick = () => {
+      currentMonday.setDate(currentMonday.getDate() - 7);
+      renderTakvim();
+    };
+    document.getElementById('nextWeek').onclick = () => {
+      currentMonday.setDate(currentMonday.getDate() + 7);
+      renderTakvim();
+    };
+
+    renderTakvim();
+  </script>
+</body>
+</html> 

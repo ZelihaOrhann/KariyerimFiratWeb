@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mentorluk Geçmişi</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-gray-900 to-gray-800 min-h-screen text-white flex flex-col">
+  <header class="bg-gray-800 shadow-lg">
+    <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+      <h1 class="text-2xl font-bold">Mentorluk Geçmişi</h1>
+      <a href="mentor/anasayfa.html" class="bg-yellow-400 hover:bg-yellow-300 text-gray-900 font-semibold px-6 py-2 rounded-lg">Panele Dön</a>
+    </div>
+  </header>
+
+  <main class="container mx-auto px-4 py-8 flex-1">
+    <p class="text-gray-300 mb-8">Geçmişte gerçekleştirdiğiniz mentorluk görüşmelerini buradan inceleyebilirsiniz.</p>
+    <div id="gecmisList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <!-- Geçmiş randevular JS ile eklenecek -->
+    </div>
+  </main>
+
+  <script>
+    // Demo random geçmiş randevular
+    const ogrenciler = [
+      { ad: "Zeynep Demir", avatar: "https://randomuser.me/api/portraits/women/44.jpg" },
+      { ad: "Ahmet Yılmaz", avatar: "https://randomuser.me/api/portraits/men/32.jpg" },
+      { ad: "Elif Kaya", avatar: "https://randomuser.me/api/portraits/women/65.jpg" },
+      { ad: "Mehmet Can", avatar: "https://randomuser.me/api/portraits/men/45.jpg" }
+    ];
+    const notlar = [
+      "CV hazırlama hakkında konuştuk.",
+      "Yazılım sektörü stajları hakkında bilgi verdim.",
+      "Motivasyon ve hedef belirleme üzerine sohbet ettik.",
+      "Proje yönetimi ve zaman yönetimi konuştuk."
+    ];
+    function randomGecmisRandevular(sayi = 8) {
+      const randevular = [];
+      for (let i = 0; i < sayi; i++) {
+        const ogr = ogrenciler[Math.floor(Math.random() * ogrenciler.length)];
+        const not = notlar[Math.floor(Math.random() * notlar.length)];
+        // Son 60 gün içinde random bir gün ve saat
+        const gunOnce = Math.floor(Math.random() * 60) + 1;
+        const saat = 9 + Math.floor(Math.random() * 8);
+        const tarih = new Date();
+        tarih.setDate(tarih.getDate() - gunOnce);
+        tarih.setHours(saat, 0, 0, 0);
+        randevular.push({
+          ogrenci: ogr.ad,
+          avatar: ogr.avatar,
+          tarih,
+          not,
+          durum: "Tamamlandı"
+        });
+      }
+      // Tarihe göre yeni->eski sırala
+      return randevular.sort((a, b) => b.tarih - a.tarih);
+    }
+
+    const gecmisList = document.getElementById('gecmisList');
+    const randevular = randomGecmisRandevular();
+    randevular.forEach(r => {
+      const card = document.createElement('div');
+      card.className = "bg-gray-900 rounded-xl shadow-lg p-6 flex flex-col gap-3";
+      card.innerHTML = `
+        <div class="flex items-center gap-3 mb-2">
+          <img src="${r.avatar}" alt="${r.ogrenci}" class="w-14 h-14 rounded-full object-cover border-4 border-yellow-400" />
+          <div>
+            <div class="font-bold text-lg text-yellow-400">${r.ogrenci}</div>
+            <div class="text-gray-400 text-sm">${r.tarih.toLocaleString('tr-TR', { dateStyle: 'medium', timeStyle: 'short' })}</div>
+          </div>
+        </div>
+        <div class="text-gray-300 text-sm mb-2">${r.not}</div>
+        <div class="flex items-center gap-2 mb-2">
+          <span class="bg-green-600/20 text-green-300 px-3 py-1 rounded text-xs">${r.durum}</span>
+        </div>
+      `;
+      gecmisList.appendChild(card);
+    });
+  </script>
+</body>
+</html> 

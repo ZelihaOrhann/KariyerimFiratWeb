@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hesap Ayarları - KariyerimFırat</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-gray-900 to-gray-800 min-h-screen text-white flex flex-col items-center justify-center py-12">
+  <div class="bg-gray-900 rounded-2xl shadow-xl p-8 w-full max-w-lg flex flex-col items-center">
+    <h1 class="text-2xl font-bold mb-2">Hesap Ayarları</h1>
+    <p class="text-gray-400 mb-6">Kişisel bilgilerinizi ve iletişim ayarlarınızı güncelleyebilirsiniz.</p>
+    <form id="settingsForm" class="w-full flex flex-col gap-6">
+      <div class="flex gap-4">
+        <div class="flex-1">
+          <label class="block text-gray-300 mb-1" for="ad">Ad</label>
+          <input type="text" id="ad" name="ad" class="w-full px-4 py-2 rounded border border-gray-700 bg-gray-800 text-white focus:outline-none focus:border-yellow-400" required />
+        </div>
+        <div class="flex-1">
+          <label class="block text-gray-300 mb-1" for="soyad">Soyad</label>
+          <input type="text" id="soyad" name="soyad" class="w-full px-4 py-2 rounded border border-gray-700 bg-gray-800 text-white focus:outline-none focus:border-yellow-400" required />
+        </div>
+      </div>
+      <div>
+        <label class="block text-gray-300 mb-1" for="email">E-posta</label>
+        <input type="email" id="email" name="email" class="w-full px-4 py-2 rounded border border-gray-700 bg-gray-800 text-white" readonly />
+      </div>
+      <div>
+        <label class="block text-gray-300 mb-1" for="telefon">Telefon</label>
+        <input type="text" id="telefon" name="telefon" class="w-full px-4 py-2 rounded border border-gray-700 bg-gray-800 text-white focus:outline-none focus:border-yellow-400" />
+      </div>
+      <button type="submit" class="bg-yellow-400 hover:bg-yellow-300 text-gray-900 font-semibold px-6 py-2 rounded-lg">Kaydet</button>
+    </form>
+    <div class="w-full border-t border-gray-700 my-8"></div>
+    <h2 class="text-lg font-bold mb-2">Şifreyi Değiştir</h2>
+    <form id="changePasswordForm" class="w-full flex flex-col gap-4">
+      <input type="password" id="currentPassword" placeholder="Mevcut Şifre" class="px-4 py-2 rounded border border-gray-700 bg-gray-800 text-white focus:outline-none focus:border-yellow-400" required />
+      <input type="password" id="newPassword" placeholder="Yeni Şifre" class="px-4 py-2 rounded border border-gray-700 bg-gray-800 text-white focus:outline-none focus:border-yellow-400" required />
+      <input type="password" id="newPasswordRepeat" placeholder="Yeni Şifre (Tekrar)" class="px-4 py-2 rounded border border-gray-700 bg-gray-800 text-white focus:outline-none focus:border-yellow-400" required />
+      <button type="submit" class="bg-yellow-400 hover:bg-yellow-300 text-gray-900 font-semibold px-6 py-2 rounded-lg">Şifreyi Değiştir</button>
+    </form>
+    <a href="anasayfa.html" class="mt-8 text-yellow-400 hover:underline">Panele Dön</a>
+    <div id="statusMsg" class="mt-4 text-center"></div>
+  </div>
+
+  <script type="module">
+    // Demo kullanıcı verisi
+    let userData = {
+      ad: "Ali",
+      soyad: "Vural",
+      email: "ali.vural@example.com",
+      telefon: "+90 555 123 45 67"
+    };
+    // Formu doldur
+    document.getElementById('ad').value = userData.ad;
+    document.getElementById('soyad').value = userData.soyad;
+    document.getElementById('email').value = userData.email;
+    document.getElementById('telefon').value = userData.telefon;
+
+    // Bilgi güncelleme
+    document.getElementById('settingsForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      userData.ad = document.getElementById('ad').value.trim();
+      userData.soyad = document.getElementById('soyad').value.trim();
+      userData.telefon = document.getElementById('telefon').value.trim();
+      document.getElementById('statusMsg').textContent = 'Bilgileriniz güncellendi! (Demo)';
+      document.getElementById('statusMsg').className = 'text-green-400 mt-4';
+    });
+
+    // Şifre değiştirme
+    document.getElementById('changePasswordForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const currentPassword = document.getElementById('currentPassword').value;
+      const newPassword = document.getElementById('newPassword').value;
+      const newPasswordRepeat = document.getElementById('newPasswordRepeat').value;
+      if (newPassword !== newPasswordRepeat) {
+        document.getElementById('statusMsg').textContent = 'Yeni şifreler eşleşmiyor!';
+        document.getElementById('statusMsg').className = 'text-red-400 mt-4';
+        return;
+      }
+      // Demo şifre değişikliği
+      document.getElementById('statusMsg').textContent = 'Şifreniz başarıyla değiştirildi! (Demo)';
+      document.getElementById('statusMsg').className = 'text-green-400 mt-4';
+    });
+  </script>
+</body>
+</html> 
